@@ -17,13 +17,13 @@ class ScreenMain(LcarsScreen):
         all_sprites.add(LcarsText(colours.BLACK, (15, 44), "LCARS 105"),
                         layer=1)
                         
-        all_sprites.add(LcarsText(colours.ORANGE, (0, 135), "HOME AUTOMATION", 2),
+        all_sprites.add(LcarsText(colours.ORANGE, (0, 135), "CLUSTER MASTER 3000", 2),
                         layer=1)
-        all_sprites.add(LcarsBlockMedium(colours.RED_BROWN, (145, 16), "LIGHTS"),
+        all_sprites.add(LcarsBlockMedium(colours.RED_BROWN, (145, 16), "CONTROL PANEL"),
                         layer=1)
-        all_sprites.add(LcarsBlockSmall(colours.ORANGE, (211, 16), "CAMERAS"),
+        all_sprites.add(LcarsBlockSmall(colours.ORANGE, (211, 16), "STATUS"),
                         layer=1)
-        all_sprites.add(LcarsBlockLarge(colours.BEIGE, (249, 16), "ENERGY"),
+        all_sprites.add(LcarsBlockLarge(colours.BEIGE, (249, 16), "SETTINGS"),
                         layer=1)
 
         self.ip_address = LcarsText(colours.BLACK, (444, 520),
@@ -49,13 +49,13 @@ class ScreenMain(LcarsScreen):
         # buttons
         all_sprites.add(LcarsButton(colours.RED_BROWN, (6, 662), "LOGOUT", self.logoutHandler),
                         layer=4)
-        all_sprites.add(LcarsButton(colours.BEIGE, (107, 127), "SENSORS", self.sensorsHandler),
+        all_sprites.add(LcarsButton(colours.BEIGE, (107, 127), "TOWER 1", self.sensorsHandler),
                         layer=4)
-        all_sprites.add(LcarsButton(colours.PURPLE, (107, 262), "GAUGES", self.gaugesHandler),
+        all_sprites.add(LcarsButton(colours.PURPLE, (107, 262), "TOWER 2", self.gaugesHandler),
                         layer=4)
-        all_sprites.add(LcarsButton(colours.PEACH, (107, 398), "WEATHER", self.weatherHandler),
+        all_sprites.add(LcarsButton(colours.PEACH, (107, 398), "RPi Tower 1", self.weatherHandler),
                         layer=4)
-        all_sprites.add(LcarsButton(colours.PEACH, (108, 536), "HOME", self.homeHandler),
+        all_sprites.add(LcarsButton(colours.PEACH, (108, 536), "RPi Tower 2", self.homeHandler),
                         layer=4)
 
         # gadgets
