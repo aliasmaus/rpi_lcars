@@ -19,7 +19,7 @@ class ScreenMain(LcarsScreen):
                         
         all_sprites.add(LcarsText(colours.ORANGE, (0, 135), "CLUSTER MASTER 3000", 2),
                         layer=1)
-        all_sprites.add(LcarsBlockMedium(colours.RED_BROWN, (145, 16), "CONTROL PANEL"),
+        all_sprites.add(LcarsBlockMedium(colours.RED_BROWN, (145, 16), "CONTROL"),
                         layer=1)
         all_sprites.add(LcarsBlockSmall(colours.ORANGE, (211, 16), "STATUS"),
                         layer=1)
@@ -53,9 +53,9 @@ class ScreenMain(LcarsScreen):
                         layer=4)
         all_sprites.add(LcarsButton(colours.PURPLE, (107, 262), "TOWER 2", self.gaugesHandler),
                         layer=4)
-        all_sprites.add(LcarsButton(colours.PEACH, (107, 398), "RPi Tower 1", self.weatherHandler),
+        all_sprites.add(LcarsButton(colours.PEACH, (107, 398), "RPi TOWER 1", self.weatherHandler),
                         layer=4)
-        all_sprites.add(LcarsButton(colours.PEACH, (108, 536), "RPi Tower 2", self.homeHandler),
+        all_sprites.add(LcarsButton(colours.PEACH, (108, 536), "RPi TOWER 2", self.homeHandler),
                         layer=4)
 
         # gadgets
