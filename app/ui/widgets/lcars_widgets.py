@@ -127,4 +127,7 @@ class LcarsBlockSmall(LcarsButton):
         size = (98, 34)
         LcarsButton.__init__(self, colour, pos, text, handler, size)
 
-    
+class RelayButton(LcarsButton):
+
+    def __init__(relaycontroller):
+        self.relay=relaycontroller

@@ -8,12 +8,19 @@ from ui.widgets.screen import LcarsScreen
 from controllers.relaycontroller import relaycontroller as RC
 
 from datasources.network import get_ip_address_string
-
+import pandas as pd
 
 class ScreenMain(LcarsScreen):
+    self.relaycontrollers=[]
+
     def setup(self, all_sprites):
         #relay setup
-        self.testrelay=RC(14)
+        pins_df=pd.read_csv("data/buttons.csv")
+        for i in range(len(pins_df)):
+            self.relaycontrollers.add(RC(pins_df.iloc[i,1]))
+
+
+
         all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1b.png"),
                         layer=0)
 
@@ -46,7 +53,7 @@ class ScreenMain(LcarsScreen):
         #self.info_text = all_sprites.get_sprites_from_layer(3)
         
         #on/off/reset button test
-        all_sprites.add(LcarsButton(colours.RED_BROWN, (192, 174), "ON/OFF", self.testrelayhandler),
+        all_sprites.add(RelayButton(colours.RED_BROWN, (192, 174), str(pins_df.iloc[i,4]), self.testrelayhandler,relaycontrollers[i]),
                         layer=3)
 
         # date display
@@ -136,6 +143,6 @@ class ScreenMain(LcarsScreen):
         self.loadScreen(ScreenAuthorize())
         
     def testrelayhandler(self, item, event, clock):
-        self.testrelay.dothething()
+        self.relaycontrollers[0].dothething()
 
 
