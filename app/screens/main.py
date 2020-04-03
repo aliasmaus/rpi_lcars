@@ -5,11 +5,15 @@ from ui.widgets.gifimage import LcarsGifImage
 from ui.widgets.lcars_widgets import *
 from ui.widgets.screen import LcarsScreen
 
+from controllers.relaycontroller import relaycontroller as RC
+
 from datasources.network import get_ip_address_string
 
 
 class ScreenMain(LcarsScreen):
     def setup(self, all_sprites):
+        #relay setup
+        self.testrelay=RC(14)
         all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1b.png"),
                         layer=0)
 
@@ -31,18 +35,22 @@ class ScreenMain(LcarsScreen):
         all_sprites.add(self.ip_address, layer=1)
 
         # info text
-        all_sprites.add(LcarsText(colours.WHITE, (192, 174), "EVENT LOG:", 1.5),
+        #all_sprites.add(LcarsText(colours.WHITE, (192, 174), "EVENT LOG:", 1.5),
+        #                layer=3)
+        #all_sprites.add(LcarsText(colours.BLUE, (244, 174), "2 ALARM ZONES TRIGGERED", 1.5),
+        #                layer=3)
+        #all_sprites.add(LcarsText(colours.BLUE, (286, 174), "14.3 kWh USED YESTERDAY", 1.5),
+        #                layer=3)
+        #all_sprites.add(LcarsText(colours.BLUE, (330, 174), "1.3 Tb DATA USED THIS MONTH", 1.5),
+        #                layer=3)
+        #self.info_text = all_sprites.get_sprites_from_layer(3)
+        
+        #on/off/reset button test
+        all_sprites.add(LcarsButton(colours.RED_BROWN, (192, 174), "ON/OFF", self.testrelayhandler),
                         layer=3)
-        all_sprites.add(LcarsText(colours.BLUE, (244, 174), "2 ALARM ZONES TRIGGERED", 1.5),
-                        layer=3)
-        all_sprites.add(LcarsText(colours.BLUE, (286, 174), "14.3 kWh USED YESTERDAY", 1.5),
-                        layer=3)
-        all_sprites.add(LcarsText(colours.BLUE, (330, 174), "1.3 Tb DATA USED THIS MONTH", 1.5),
-                        layer=3)
-        self.info_text = all_sprites.get_sprites_from_layer(3)
 
         # date display
-        self.stardate = LcarsText(colours.BLUE, (12, 380), "STAR DATE 2311.05 17:54:32", 1.5)
+        self.stardate = LcarsText(colours.BLUE, (12, 400), "STAR DATE 2311.05 17:54:32", 1.5)
         self.lastClockUpdate = 0
         all_sprites.add(self.stardate, layer=1)
 
@@ -126,5 +134,8 @@ class ScreenMain(LcarsScreen):
     def logoutHandler(self, item, event, clock):
         from screens.authorize import ScreenAuthorize
         self.loadScreen(ScreenAuthorize())
+        
+    def testrelayhandler(self, item, event, clock):
+        self.testrelay.dothething()
 
 
