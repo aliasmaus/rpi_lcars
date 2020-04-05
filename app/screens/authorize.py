@@ -32,12 +32,12 @@ class ScreenAuthorize(LcarsScreen):
 
 
         all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 130), "1", self.num_1), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 130), "2", self.num_2), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 270), "3", self.num_3), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 270), "4", self.num_4), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 410), "5", self.num_5), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 410), "6", self.num_6), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 550), "7", self.num_7), layer=2)
+        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 130), "5", self.num_5), layer=2)
+        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 270), "2", self.num_2), layer=2)
+        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 270), "6", self.num_6), layer=2)
+        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 410), "3", self.num_3), layer=2)
+        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 410), "7", self.num_7), layer=2)
+        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 550), "4", self.num_4), layer=2)
         all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 550), "8", self.num_8), layer=2)
 
         if config.DEV_MODE:
@@ -57,7 +57,7 @@ class ScreenAuthorize(LcarsScreen):
         ############
         # SET PIN CODE WITH THIS VARIABLE
         ############
-        self.pin = 1234
+        self.pin = 1337
         ############
         self.reset()
 
@@ -81,7 +81,7 @@ class ScreenAuthorize(LcarsScreen):
                 Sound("assets/audio/enter_authorization_code.wav").play()
             elif (self.pin_i == len(str(self.pin))):
                 # Ran out of button presses
-                if (self.correct == 4):
+                if (self.correct == len(str(self.pin))):
                     self.sound_granted.play()
                     from screens.main import ScreenMain
                     self.loadScreen(ScreenMain())
