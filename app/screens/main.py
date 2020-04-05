@@ -11,15 +11,39 @@ from datasources.network import get_ip_address_string
 import pandas as pd
 
 class ScreenMain(LcarsScreen):
-    self.relaycontrollers=[]
+    relaycontrollers=[]
+    label_xpos=140
+    pwr_button_xpos=200
+    reset_button_xpos=300
+    cluster_button_xpos=140
+    cluster_button_ypos=120
+    cluster_button_xinterval=140
+    content_ypos=180
+    content_yinterval=60
+    cluster_node_labels=[]
+    cluster_node_pwr_buttons=[]
+    cluster_node_reset_buttons=[]
 
     def setup(self, all_sprites):
         #relay setup
         pins_df=pd.read_csv("data/buttons.csv")
+        print(pins_df.head())
+        for i in range(pins_df['group'].max()):
+            all_sprites.add(LcarsButton(colours.BEIGE, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "TOWER "+ str(i+1), self.sensorsHandler),
+                        layer=4)
+            self.cluster_node_labels.append([])
+            self.cluster_node_pwr_buttons.append([])
+            self.cluster_node_reset_buttons.append([])
         for i in range(len(pins_df)):
-            self.relaycontrollers.add(RC(pins_df.iloc[i,1]))
+            if pins_df['type'][i]=='power':
+                self.cluster_node_pwr_buttons[int(pins_df['group'][i])-1].append(all_sprites.add(LcarsButton(colours.BEIGE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.pwr_button_xpos), "POWER", self.sensorsHandler),
+                            layer=4))
+            else:
+                self.cluster_node_reset_buttons[int(pins_df['group'][i])-1].append(all_sprites.add(LcarsButton(colours.BEIGE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", self.sensorsHandler, rectSize=(80,40)),
+                            layer=4))
+            self.relaycontrollers.append(RC(int(pins_df['gpio_pin'][i])))
 
-
+        print(str(self.cluster_node_pwr_buttons))
 
         all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1b.png"),
                         layer=0)
@@ -53,8 +77,8 @@ class ScreenMain(LcarsScreen):
         #self.info_text = all_sprites.get_sprites_from_layer(3)
         
         #on/off/reset button test
-        all_sprites.add(RelayButton(colours.RED_BROWN, (192, 174), str(pins_df.iloc[i,4]), self.testrelayhandler,relaycontrollers[i]),
-                        layer=3)
+        #all_sprites.add(RelayButton(colours.RED_BROWN, (192, 174), str(pins_df.iloc[i,4]), self.testrelayhandler,relaycontrollers[i]),
+         #               layer=3)
 
         # date display
         self.stardate = LcarsText(colours.BLUE, (12, 400), "STAR DATE 2311.05 17:54:32", 1.5)
@@ -62,16 +86,16 @@ class ScreenMain(LcarsScreen):
         all_sprites.add(self.stardate, layer=1)
 
         # buttons
-        all_sprites.add(LcarsButton(colours.RED_BROWN, (6, 662), "LOGOUT", self.logoutHandler),
-                        layer=4)
-        all_sprites.add(LcarsButton(colours.BEIGE, (107, 127), "TOWER 1", self.sensorsHandler),
-                        layer=4)
-        all_sprites.add(LcarsButton(colours.PURPLE, (107, 262), "TOWER 2", self.gaugesHandler),
-                        layer=4)
-        all_sprites.add(LcarsButton(colours.PEACH, (107, 398), "RPi TOWER 1", self.weatherHandler),
-                        layer=4)
-        all_sprites.add(LcarsButton(colours.PEACH, (108, 536), "RPi TOWER 2", self.homeHandler),
-                        layer=4)
+        #all_sprites.add(LcarsButton(colours.RED_BROWN, (6, 662), "LOGOUT", self.logoutHandler),
+        #                layer=4)
+        #all_sprites.add(LcarsButton(colours.BEIGE, (107, 127), "TOWER 1", self.sensorsHandler),
+        #                layer=4)
+        #all_sprites.add(LcarsButton(colours.PURPLE, (107, 262), "TOWER 2", self.gaugesHandler),
+        #                layer=4)
+        #all_sprites.add(LcarsButton(colours.PEACH, (107, 398), "RPi TOWER 1", self.weatherHandler),
+        #                layer=4)
+        #all_sprites.add(LcarsButton(colours.PEACH, (108, 536), "RPi TOWER 2", self.homeHandler),
+        #                layer=4)
 
         # gadgets
         all_sprites.add(LcarsGifImage("assets/gadgets/fwscan.gif", (277, 556), 100), layer=1)
