@@ -1,5 +1,5 @@
 import pygame
-from pygame.font import Font
+from pygame.font import Font, SysFont
 from pygame.locals import *
 
 from ui.utils.sound import Sound
@@ -60,13 +60,13 @@ class LcarsButton(LcarsWidget):
 
         self.colour = colour
         self.image = image
-        font = Font("assets/swiss911.ttf", 19)
-        textImage = font.render(text, False, colours.BLACK)
+        font = SysFont("droid", 19, True, False)
+        textImage = font.render(text, True, colours.BLACK)
         image.blit(textImage, 
                 (image.get_rect().width - textImage.get_rect().width - 10,
                     image.get_rect().height - textImage.get_rect().height - 5))
-        if not icon==None:
-            image.blit(icon, (10,10))
+        #if not icon==None:
+        #    image.blit(icon, (10,10))
     
         LcarsWidget.__init__(self, colour, pos, size, handler)
         self.applyColour(colour)

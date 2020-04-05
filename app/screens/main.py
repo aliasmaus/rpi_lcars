@@ -14,13 +14,13 @@ from RPi import GPIO
 
 class ScreenMain(LcarsScreen):
     relay_controllers=[]
-    label_xpos=140
-    pwr_button_xpos=200
-    reset_button_xpos=300
+    label_xpos=160
+    pwr_button_xpos=250
+    reset_button_xpos=350
     cluster_button_xpos=140
     cluster_button_ypos=120
     cluster_button_xinterval=140
-    content_ypos=180
+    content_ypos=200
     content_yinterval=60
     cluster_node_labels=[]
     cluster_node_pwr_buttons=[]
@@ -40,7 +40,7 @@ class ScreenMain(LcarsScreen):
         #loop through each cluster
         for i in range(pins_df['group'].max()):
             #create a button for top menu
-            all_sprites.add(ClusterButton(colours.BEIGE, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "TOWER "+ str(i+1), i+1, self.clusterButtonHandler),
+            all_sprites.add(ClusterButton(colours.BLUELIGHT, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "TOWER "+ str(i+1), i+1, self.clusterButtonHandler),
                         layer=4)
             #create arrays for labels, power/reset buttons
             self.cluster_node_labels.append([])
@@ -79,50 +79,35 @@ class ScreenMain(LcarsScreen):
         
         
         #add background image
-        all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1b.png"),
+        all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1_minimal.png"),
                         layer=0)
 
         # panel text
-        all_sprites.add(LcarsText(colours.BLACK, (15, 44), "LCARS 105"),
+        all_sprites.add(LcarsText(colours.BLUELIGHT, (15, 44), "LCARS 105"),
                         layer=1)
                         
-        all_sprites.add(LcarsText(colours.ORANGE, (0, 135), "CLUSTER MASTER 3000", 2),
+        all_sprites.add(LcarsText(colours.WHITE, (10, 135), "CLUSTER MASTER", 2),
                         layer=1)
-        all_sprites.add(LcarsBlockMedium(colours.RED_BROWN, (145, 16), "CONTROL"),
+        all_sprites.add(LcarsBlockMedium(colours.BLUELIGHT, (145, 16), "CONTROL", self.showControlHandler),
                         layer=1)
-        all_sprites.add(LcarsBlockSmall(colours.ORANGE, (211, 16), "STATUS"),
+        all_sprites.add(LcarsBlockSmall(colours.BLUEDARK, (211, 16), "STATUS", self.showSettingsHandler),
                         layer=1)
-        all_sprites.add(LcarsBlockLarge(colours.BEIGE, (249, 16), "SETTINGS"),
+        all_sprites.add(LcarsBlockLarge(colours.BLUEMID, (249, 16), "SETTINGS", self.showStatusHandler),
                         layer=1)
 
-        self.ip_address = LcarsText(colours.BLACK, (444, 520),
+        self.ip_address = LcarsText(colours.BLUELIGHT, (444, 520),
                                     get_ip_address_string())
         all_sprites.add(self.ip_address, layer=1)
 
 
         # date display
-        self.stardate = LcarsText(colours.BLUE, (12, 400), "STAR DATE 2311.05 17:54:32", 1.5)
+        self.stardate = LcarsText(colours.BLUE, (20, 400), "STAR DATE 2311.05 17:54:32", 1.5)
         self.lastClockUpdate = 0
         all_sprites.add(self.stardate, layer=1)
 
         # buttons
-        all_sprites.add(LcarsButton(colours.RED_BROWN, (6, 662), "LOGOUT", self.logoutHandler),
+        all_sprites.add(LcarsButton(colours.BLUEMID, (6, 662), "LOGOUT", self.logoutHandler),
                         layer=4)
-
-        # gadgets
-        all_sprites.add(LcarsGifImage("assets/gadgets/fwscan.gif", (277, 556), 100), layer=1)
-
-        self.sensor_gadget = LcarsGifImage("assets/gadgets/lcars_anim2.gif", (235, 150), 100)
-        self.sensor_gadget.visible = False
-        all_sprites.add(self.sensor_gadget, layer=2)
-
-        self.dashboard = LcarsImage("assets/gadgets/dashboard.png", (187, 232))
-        self.dashboard.visible = False
-        all_sprites.add(self.dashboard, layer=2)
-
-        self.weather = LcarsImage("assets/weather.jpg", (188, 122))
-        self.weather.visible = False
-        all_sprites.add(self.weather, layer=2)
 
         #all_sprites.add(LcarsMoveToMouse(colours.WHITE), layer=1)
         self.beep1 = Sound("assets/audio/panel/201.wav")
@@ -149,41 +134,18 @@ class ScreenMain(LcarsScreen):
     def showInfoText(self):
         for sprite in self.info_text:
             sprite.visible = True
-
-    def gaugesHandler(self, item, event, clock):
-        self.hideInfoText()
-        self.sensor_gadget.visible = False
-        self.dashboard.visible = True
-        self.weather.visible = False
-
-    def sensorsHandler(self, item, event, clock):
-        self.hideInfoText()
-        self.sensor_gadget.visible = True
-        self.dashboard.visible = False
-        self.weather.visible = False
-
-    def weatherHandler(self, item, event, clock):
-        self.hideInfoText()
-        self.sensor_gadget.visible = False
-        self.dashboard.visible = False
-        self.weather.visible = True
-
-    def homeHandler(self, item, event, clock):
-        self.showInfoText()
-        self.sensor_gadget.visible = False
-        self.dashboard.visible = False
-        self.weather.visible = False
         
     def logoutHandler(self, item, event, clock):
         from screens.authorize import ScreenAuthorize
         self.loadScreen(ScreenAuthorize())
         for controller in self.relay_controllers:
             controller.relay.close()
+            
     def relayButtonHandler(self, item, event, clock):
         item.relay.dothething()
         
     def clusterButtonHandler(self, item, event, clock):
-        print('running button handler')
+        #print('running button handler')
         self.hideAllButtons()
         for i in self.cluster_node_labels[item.group_number-1]:
             i.visible=True
@@ -193,9 +155,9 @@ class ScreenMain(LcarsScreen):
             i.visible=True
     def hideAllButtons(self):
         for group in self.cluster_node_pwr_buttons:
-            print(group)
+            #print(group)
             for i in range(len(group)):
-                print(group[i])
+                #print(group[i])
                 group[i].visible=False
         for group in self.cluster_node_labels:
             for i in range(len(group)):
@@ -204,3 +166,11 @@ class ScreenMain(LcarsScreen):
             for i in range(len(group)):
                 group[i].visible=False
         
+    def showControlHandler(self, item, event, clock):
+        print('click')
+        
+    def showStatusHandler(self, item, event, clock):
+        print('click')
+        
+    def showSettingsHandler(self, item, event, clock):
+        print('click')
