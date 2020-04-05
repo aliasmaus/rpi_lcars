@@ -10,9 +10,10 @@ from controllers.relaycontroller import relaycontroller as RC
 from datasources.network import get_ip_address_string
 import pandas as pd
 import gpiozero
+from RPi import GPIO
 
 class ScreenMain(LcarsScreen):
-    relaycontrollers=[]
+    relay_controllers=[]
     label_xpos=140
     pwr_button_xpos=200
     reset_button_xpos=300
@@ -51,18 +52,20 @@ class ScreenMain(LcarsScreen):
         for i in range(len(pins_df)):
             button=None
             label=None
+            controller=RC(int(pins_df['gpio_pin'][i]))
+            self.relay_controllers.append(controller)
         #create relevant button and add it to all_sprites and button array
         #buttons not in group 1 hidden by default
         #creates labels with power buttons
             if pins_df['type'][i]=='power':
                 name=pins_df['name'][i]
-                button=RelayPowerButton(colours.PURPLE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.pwr_button_xpos), "POWER", RC(int(pins_df['gpio_pin'][len(pins_df)-1-i])), self.relayButtonHandler)
+                button=RelayPowerButton(colours.PURPLE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.pwr_button_xpos), "POWER", controller, self.relayButtonHandler)
                 self.cluster_node_pwr_buttons[int(pins_df['group'][i])-1].append(button)
                 label=LcarsText(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.label_xpos), name)
                 self.cluster_node_labels[pins_df['group'][i]-1].append(label)
                 all_sprites.add(label, layer=4)
             else:
-                button=RelayResetButton(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", RC(int(pins_df['gpio_pin'][len(pins_df)-1-i])), self.relayButtonHandler)
+                button=RelayResetButton(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", controller, self.relayButtonHandler)
                 self.cluster_node_reset_buttons[int(pins_df['group'][i])-1].append(button)
             all_sprites.add(button, layer=4)
             if not int(pins_df['group'][i])==1:
@@ -174,7 +177,8 @@ class ScreenMain(LcarsScreen):
     def logoutHandler(self, item, event, clock):
         from screens.authorize import ScreenAuthorize
         self.loadScreen(ScreenAuthorize())
-        
+        for controller in self.relay_controllers:
+            controller.relay.close()
     def relayButtonHandler(self, item, event, clock):
         item.relay.dothething()
         
