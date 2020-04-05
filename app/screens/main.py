@@ -9,18 +9,76 @@ from controllers.relaycontroller import relaycontroller as RC
 
 from datasources.network import get_ip_address_string
 import pandas as pd
+import gpiozero
+from RPi import GPIO
 
 class ScreenMain(LcarsScreen):
-    self.relaycontrollers=[]
+    relay_controllers=[]
+    label_xpos=140
+    pwr_button_xpos=200
+    reset_button_xpos=300
+    cluster_button_xpos=140
+    cluster_button_ypos=120
+    cluster_button_xinterval=140
+    content_ypos=180
+    content_yinterval=60
+    cluster_node_labels=[]
+    cluster_node_pwr_buttons=[]
+    cluster_node_reset_buttons=[]
+    #power_icon=pygame.image.load("assets/power_small.png")
+    #reset_icon=pygame.image.load("assets/reset_small.png").convert_alpha()
 
     def setup(self, all_sprites):
+        #clear gpio
+        #gpiozero.Factory.close()
         #relay setup
+        # get configuration from file
         pins_df=pd.read_csv("data/buttons.csv")
+        #debugging
+        #print(pins_df.head())
+        
+        #loop through each cluster
+        for i in range(pins_df['group'].max()):
+            #create a button for top menu
+            all_sprites.add(ClusterButton(colours.BEIGE, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "TOWER "+ str(i+1), i+1, self.clusterButtonHandler),
+                        layer=4)
+            #create arrays for labels, power/reset buttons
+            self.cluster_node_labels.append([])
+            self.cluster_node_pwr_buttons.append([])
+            self.cluster_node_reset_buttons.append([])
+            
+        
+        #loop through each machine
         for i in range(len(pins_df)):
-            self.relaycontrollers.add(RC(pins_df.iloc[i,1]))
-
-
-
+            button=None
+            label=None
+            controller=RC(int(pins_df['gpio_pin'][i]))
+            self.relay_controllers.append(controller)
+        #create relevant button and add it to all_sprites and button array
+        #buttons not in group 1 hidden by default
+        #creates labels with power buttons
+            if pins_df['type'][i]=='power':
+                name=pins_df['name'][i]
+                button=RelayPowerButton(colours.PURPLE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.pwr_button_xpos), "POWER", controller, self.relayButtonHandler)
+                self.cluster_node_pwr_buttons[int(pins_df['group'][i])-1].append(button)
+                label=LcarsText(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.label_xpos), name)
+                self.cluster_node_labels[pins_df['group'][i]-1].append(label)
+                all_sprites.add(label, layer=4)
+            else:
+                button=RelayResetButton(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", controller, self.relayButtonHandler)
+                self.cluster_node_reset_buttons[int(pins_df['group'][i])-1].append(button)
+            all_sprites.add(button, layer=4)
+            if not int(pins_df['group'][i])==1:
+                button.visible=False
+                if not label==None:
+                    label.visible=False
+                        
+        #debugging
+        #print(str(self.cluster_node_pwr_buttons))
+        #self.hideAllButtons()
+        
+        
+        #add background image
         all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1b.png"),
                         layer=0)
 
@@ -41,20 +99,6 @@ class ScreenMain(LcarsScreen):
                                     get_ip_address_string())
         all_sprites.add(self.ip_address, layer=1)
 
-        # info text
-        #all_sprites.add(LcarsText(colours.WHITE, (192, 174), "EVENT LOG:", 1.5),
-        #                layer=3)
-        #all_sprites.add(LcarsText(colours.BLUE, (244, 174), "2 ALARM ZONES TRIGGERED", 1.5),
-        #                layer=3)
-        #all_sprites.add(LcarsText(colours.BLUE, (286, 174), "14.3 kWh USED YESTERDAY", 1.5),
-        #                layer=3)
-        #all_sprites.add(LcarsText(colours.BLUE, (330, 174), "1.3 Tb DATA USED THIS MONTH", 1.5),
-        #                layer=3)
-        #self.info_text = all_sprites.get_sprites_from_layer(3)
-        
-        #on/off/reset button test
-        all_sprites.add(RelayButton(colours.RED_BROWN, (192, 174), str(pins_df.iloc[i,4]), self.testrelayhandler,relaycontrollers[i]),
-                        layer=3)
 
         # date display
         self.stardate = LcarsText(colours.BLUE, (12, 400), "STAR DATE 2311.05 17:54:32", 1.5)
@@ -63,14 +107,6 @@ class ScreenMain(LcarsScreen):
 
         # buttons
         all_sprites.add(LcarsButton(colours.RED_BROWN, (6, 662), "LOGOUT", self.logoutHandler),
-                        layer=4)
-        all_sprites.add(LcarsButton(colours.BEIGE, (107, 127), "TOWER 1", self.sensorsHandler),
-                        layer=4)
-        all_sprites.add(LcarsButton(colours.PURPLE, (107, 262), "TOWER 2", self.gaugesHandler),
-                        layer=4)
-        all_sprites.add(LcarsButton(colours.PEACH, (107, 398), "RPi TOWER 1", self.weatherHandler),
-                        layer=4)
-        all_sprites.add(LcarsButton(colours.PEACH, (108, 536), "RPi TOWER 2", self.homeHandler),
                         layer=4)
 
         # gadgets
@@ -141,8 +177,30 @@ class ScreenMain(LcarsScreen):
     def logoutHandler(self, item, event, clock):
         from screens.authorize import ScreenAuthorize
         self.loadScreen(ScreenAuthorize())
+        for controller in self.relay_controllers:
+            controller.relay.close()
+    def relayButtonHandler(self, item, event, clock):
+        item.relay.dothething()
         
-    def testrelayhandler(self, item, event, clock):
-        self.relaycontrollers[0].dothething()
-
-
+    def clusterButtonHandler(self, item, event, clock):
+        print('running button handler')
+        self.hideAllButtons()
+        for i in self.cluster_node_labels[item.group_number-1]:
+            i.visible=True
+        for i in self.cluster_node_pwr_buttons[item.group_number-1]:
+            i.visible=True
+        for i in self.cluster_node_reset_buttons[item.group_number-1]:
+            i.visible=True
+    def hideAllButtons(self):
+        for group in self.cluster_node_pwr_buttons:
+            print(group)
+            for i in range(len(group)):
+                print(group[i])
+                group[i].visible=False
+        for group in self.cluster_node_labels:
+            for i in range(len(group)):
+                group[i].visible=False
+        for group in self.cluster_node_reset_buttons:
+            for i in range(len(group)):
+                group[i].visible=False
+        

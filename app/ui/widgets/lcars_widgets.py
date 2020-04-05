@@ -3,7 +3,7 @@ from pygame.font import Font
 from pygame.locals import *
 
 from ui.utils.sound import Sound
-from ui.widgets.sprite import LcarsWidget
+from ui.widgets.sprite import LcarsWidget, PowerWidget, ResetWidget
 from ui import colours
 
 class LcarsElbow(LcarsWidget):
@@ -49,7 +49,7 @@ class LcarsTab(LcarsWidget):
 class LcarsButton(LcarsWidget):
     """Button - either rounded or rectangular if rectSize is spcified"""
 
-    def __init__(self, colour, pos, text, handler=None, rectSize=None):
+    def __init__(self, colour, pos, text, handler=None, rectSize=None, icon=None):
         if rectSize == None:
             image = pygame.image.load("assets/button.png").convert_alpha()
             size = (image.get_rect().width, image.get_rect().height)
@@ -65,6 +65,8 @@ class LcarsButton(LcarsWidget):
         image.blit(textImage, 
                 (image.get_rect().width - textImage.get_rect().width - 10,
                     image.get_rect().height - textImage.get_rect().height - 5))
+        if not icon==None:
+            image.blit(icon, (10,10))
     
         LcarsWidget.__init__(self, colour, pos, size, handler)
         self.applyColour(colour)
@@ -81,7 +83,86 @@ class LcarsButton(LcarsWidget):
             self.applyColour(self.colour)
            
         return LcarsWidget.handleEvent(self, event, clock)
+
+class PowerButton(PowerWidget):
+    """Button - either rounded or rectangular if rectSize is spcified"""
+    
+    
+    def __init__(self, colour, pos, text, handler=None, rectSize=None, icon=None):
+        if rectSize == None:
+            image = pygame.image.load("assets/power_small_cyan.png")
+            size = (image.get_rect().width, image.get_rect().height)
+        else:
+            size = rectSize
+            image = pygame.Surface(rectSize).convert_alpha()
+            image.fill(colour)
+
+        self.colour = colour
+        self.image = image.convert_alpha()
+        #font = Font("assets/swiss911.ttf", 8)
+        #textImage = font.render(text, False, colours.BLACK)
+        #image.blit(textImage, 
+        #        (image.get_rect().width - textImage.get_rect().width - 10,
+        #            image.get_rect().height - textImage.get_rect().height - 5))
+        #if not icon==None:
+        #    image.blit(icon, (10,10))
+    
+        PowerWidget.__init__(self, colour, pos, size, handler)
+        #self.applyColour(colour)
+        self.highlighted = False
+        self.beep = Sound("assets/audio/panel/202.wav")
+
+    def handleEvent(self, event, clock):
+        image2 = pygame.image.load("assets/power_small.png")
+        if (event.type == MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos) and self.visible == True):
+            #self.applyColour(colours.WHITE)
+            self.highlighted = True
+            self.beep.play()
+            self.image = image2.convert_alpha()
+            #size = (image.get_rect().width, image.get_rect().height)
+
+
+        #self.colour = colour
         
+        image = pygame.image.load("assets/power_small_cyan.png")
+        if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
+            self.image = image.convert_alpha()
+           
+        return PowerWidget.handleEvent(self, event, clock)
+        
+class ResetButton(ResetWidget):
+    """Button - either rounded or rectangular if rectSize is spcified"""
+
+    def __init__(self, colour, pos, text, handler=None, rectSize=None, icon=None):
+        if rectSize == None:
+            image = pygame.image.load("assets/reset_small_cyan.png").convert_alpha()
+            size = (image.get_rect().width, image.get_rect().height)
+        else:
+            size = rectSize
+            image = pygame.Surface(rectSize).convert_alpha()
+            image.fill(colour)
+
+        self.colour = colour
+        self.image = image
+    
+        PowerWidget.__init__(self, colour, pos, size, handler)
+        self.highlighted = False
+        self.beep = Sound("assets/audio/panel/202.wav")
+
+    def handleEvent(self, event, clock):
+        image2 = pygame.image.load("assets/reset_small.png")
+        if (event.type == MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos) and self.visible == True):
+            self.highlighted = True
+            self.beep.play()
+            self.image = image2.convert_alpha()
+
+        
+        image = pygame.image.load("assets/reset_small_cyan.png")
+        if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
+            self.image = image.convert_alpha()
+           
+        return PowerWidget.handleEvent(self, event, clock)
+                
 class LcarsText(LcarsWidget):
     """Text that can be placed anywhere"""
 
@@ -127,7 +208,20 @@ class LcarsBlockSmall(LcarsButton):
         size = (98, 34)
         LcarsButton.__init__(self, colour, pos, text, handler, size)
 
-class RelayButton(LcarsButton):
+class RelayPowerButton(PowerButton):
 
-    def __init__(relaycontroller):
-        self.relay=relaycontroller
+    def __init__(self, colour, pos, text, relayController, handler=None, rectSize=None, icon=None):
+        self.relay=relayController
+        PowerButton.__init__(self, colour, pos, text, handler, icon=icon)
+
+class RelayResetButton(ResetButton):
+
+    def __init__(self, colour, pos, text, relayController, handler=None, rectSize=None, icon=None):
+        self.relay=relayController
+        ResetButton.__init__(self, colour, pos, text, handler, icon=icon)
+        
+class ClusterButton(LcarsButton):
+    
+    def __init__(self, colour, pos, text, group_number, handler=None, rectSize=None, icon=None):
+        self.group_number=group_number
+        LcarsButton.__init__(self, colour, pos, text, handler)

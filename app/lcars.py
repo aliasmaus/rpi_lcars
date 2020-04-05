@@ -1,4 +1,5 @@
 from screens.authorize import ScreenAuthorize
+from screens.main import ScreenMain
 from ui.ui import UserInterface
 import config
 
