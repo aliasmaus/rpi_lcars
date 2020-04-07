@@ -25,23 +25,23 @@ class ScreenMain(LcarsScreen):
     cluster_node_labels=[]
     cluster_node_pwr_buttons=[]
     cluster_node_reset_buttons=[]
+    cluster_buttons=[]
+    title_text=None
     #power_icon=pygame.image.load("assets/power_small.png")
     #reset_icon=pygame.image.load("assets/reset_small.png").convert_alpha()
 
     def setup(self, all_sprites):
-        #clear gpio
-        #gpiozero.Factory.close()
         #relay setup
         # get configuration from file
         pins_df=pd.read_csv("data/buttons.csv")
-        #debugging
-        #print(pins_df.head())
+        self.all_sprites=all_sprites
         
         #loop through each cluster
         for i in range(pins_df['group'].max()):
             #create a button for top menu
-            all_sprites.add(ClusterButton(colours.BLUELIGHT, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "TOWER "+ str(i+1), i+1, self.clusterButtonHandler),
-                        layer=4)
+            button = ClusterButton(colours.WHITE, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "TOWER "+ str(i+1), i+1, self.clusterButtonHandler)
+            all_sprites.add(button, layer=4)
+            self.cluster_buttons.append(button)
             #create arrays for labels, power/reset buttons
             self.cluster_node_labels.append([])
             self.cluster_node_pwr_buttons.append([])
@@ -65,34 +65,30 @@ class ScreenMain(LcarsScreen):
                 self.cluster_node_labels[pins_df['group'][i]-1].append(label)
                 all_sprites.add(label, layer=4)
             else:
-                button=RelayResetButton(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", controller, self.relayButtonHandler)
+                button=RelayResetButton(colours.BLUE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", controller, self.relayButtonHandler)
                 self.cluster_node_reset_buttons[int(pins_df['group'][i])-1].append(button)
             all_sprites.add(button, layer=4)
             if not int(pins_df['group'][i])==1:
                 button.visible=False
                 if not label==None:
                     label.visible=False
-                        
-        #debugging
-        #print(str(self.cluster_node_pwr_buttons))
-        #self.hideAllButtons()
         
         
         #add background image
-        all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1_minimal.png"),
+        all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1_modern.png"),
                         layer=0)
 
         # panel text
         all_sprites.add(LcarsText(colours.BLUELIGHT, (15, 44), "LCARS 105"),
                         layer=1)
-                        
-        all_sprites.add(LcarsText(colours.WHITE, (10, 135), "CLUSTER MASTER", 2),
+        self.title_text=LcarsText(colours.WHITE, (10, 135), "CLUSTER MASTER", 2)                
+        all_sprites.add(self.title_text,
                         layer=1)
-        all_sprites.add(LcarsBlockMedium(colours.BLUELIGHT, (145, 16), "CONTROL", self.showControlHandler),
+        all_sprites.add(LcarsBlockMedium(colours.WHITE, (145, 16), "CONTROL", self.showControlHandler),
                         layer=1)
-        all_sprites.add(LcarsBlockSmall(colours.BLUEDARK, (211, 16), "STATUS", self.showSettingsHandler),
+        all_sprites.add(LcarsBlockSmall(colours.WHITE, (211, 16), "STATUS", self.showSettingsHandler),
                         layer=1)
-        all_sprites.add(LcarsBlockLarge(colours.BLUEMID, (249, 16), "SETTINGS", self.showStatusHandler),
+        all_sprites.add(LcarsBlockLarge(colours.WHITE, (249, 16), "SETTINGS", self.showStatusHandler),
                         layer=1)
 
         self.ip_address = LcarsText(colours.BLUELIGHT, (444, 520),
@@ -101,7 +97,7 @@ class ScreenMain(LcarsScreen):
 
 
         # date display
-        self.stardate = LcarsText(colours.BLUE, (20, 400), "STAR DATE 2311.05 17:54:32", 1.5)
+        self.stardate = LcarsText(colours.BLUEMID, (20, 400), "STAR DATE 2311.05 17:54:32", 1.5)
         self.lastClockUpdate = 0
         all_sprites.add(self.stardate, layer=1)
 
@@ -112,6 +108,16 @@ class ScreenMain(LcarsScreen):
         #all_sprites.add(LcarsMoveToMouse(colours.WHITE), layer=1)
         self.beep1 = Sound("assets/audio/panel/201.wav")
         Sound("assets/audio/panel/220.wav").play()
+        
+        #ensure only first page displayed
+        for sprite in all_sprites.get_sprites_from_layer(5):
+            sprite.visible=False
+        for sprite in all_sprites.get_sprites_from_layer(6):
+            sprite.visible=False
+        
+        #testing the ultimate button
+        pic1 = pygame.image.load("assets/button.png")
+        all_sprites.add(UltimateButton((100,100), image_set=[pic1], colour_set=[(255,255,255),(200,200,200),(200,200,200)], text="hello"), layer=4)
 
     def update(self, screenSurface, fpsClock):
         if pygame.time.get_ticks() - self.lastClockUpdate > 1000:
@@ -168,9 +174,37 @@ class ScreenMain(LcarsScreen):
         
     def showControlHandler(self, item, event, clock):
         print('click')
+        for sprite in self.all_sprites.get_sprites_from_layer(5):
+            sprite.visible=False
+        for sprite in self.all_sprites.get_sprites_from_layer(6):
+            sprite.visible=False
+        for i in self.cluster_buttons:
+            i.visible=True
+        for i in self.cluster_node_labels[0]:
+            i.visible=True
+        for i in self.cluster_node_pwr_buttons[0]:
+            i.visible=True
+        for i in self.cluster_node_reset_buttons[0]:
+            i.visible=True
+        self.title_text.renderText("CONTROL")
+        
         
     def showStatusHandler(self, item, event, clock):
         print('click')
+        for sprite in self.all_sprites.get_sprites_from_layer(4):
+            sprite.visible=False
+        for sprite in self.all_sprites.get_sprites_from_layer(6):
+            sprite.visible=False
+        for sprite in self.all_sprites.get_sprites_from_layer(5):
+            sprite.visible=True
+        self.title_text.renderText("STATUS")
         
     def showSettingsHandler(self, item, event, clock):
         print('click')
+        for sprite in self.all_sprites.get_sprites_from_layer(4):
+            sprite.visible=False
+        for sprite in self.all_sprites.get_sprites_from_layer(5):
+            sprite.visible=False
+        for sprite in self.all_sprites.get_sprites_from_layer(6):
+            sprite.visible=True
+        self.title_text.renderText("SETTINGS")

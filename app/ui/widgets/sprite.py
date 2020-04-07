@@ -73,7 +73,7 @@ class LcarsWidget(pygame.sprite.DirtySprite):
         for x in range(0, self.size[0]):
             for y in range(0, self.size[1]):
                 pixel = self.image.get_at((x, y)).r
-                if (pixel > 50):
+                if (pixel > 1):
                     self.image.set_at((x, y), colour)
                     
                     

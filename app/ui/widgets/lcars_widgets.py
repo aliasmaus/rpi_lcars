@@ -55,19 +55,18 @@ class LcarsButton(LcarsWidget):
             size = (image.get_rect().width, image.get_rect().height)
         else:
             size = rectSize
-            image = pygame.Surface(rectSize).convert_alpha()
+            image = pygame.Surface(rectSize)
             image.fill(colour)
+            #image=image.convert_alpha()
 
         self.colour = colour
         self.image = image
-        font = SysFont("droid", 19, True, False)
-        textImage = font.render(text, True, colours.BLACK)
-        image.blit(textImage, 
+        self.font = Font("assets/swiss911.ttf", 18)
+        textImage = self.font.render(text, False, colours.BLACK)
+        image = image.blit(textImage, 
                 (image.get_rect().width - textImage.get_rect().width - 10,
                     image.get_rect().height - textImage.get_rect().height - 5))
-        #if not icon==None:
-        #    image.blit(icon, (10,10))
-    
+        
         LcarsWidget.__init__(self, colour, pos, size, handler)
         self.applyColour(colour)
         self.highlighted = False
@@ -75,7 +74,7 @@ class LcarsButton(LcarsWidget):
 
     def handleEvent(self, event, clock):
         if (event.type == MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos) and self.visible == True):
-            self.applyColour(colours.WHITE)
+            self.applyColour((200,200,200))
             self.highlighted = True
             self.beep.play()
 
@@ -90,7 +89,7 @@ class PowerButton(PowerWidget):
     
     def __init__(self, colour, pos, text, handler=None, rectSize=None, icon=None):
         if rectSize == None:
-            image = pygame.image.load("assets/power_small_cyan.png")
+            image = pygame.image.load("assets/power_small_cyantest.png")
             size = (image.get_rect().width, image.get_rect().height)
         else:
             size = rectSize
@@ -124,7 +123,7 @@ class PowerButton(PowerWidget):
 
         #self.colour = colour
         
-        image = pygame.image.load("assets/power_small_cyan.png")
+        image = pygame.image.load("assets/power_small_cyantest.png")
         if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
             self.image = image.convert_alpha()
            
@@ -135,7 +134,7 @@ class ResetButton(ResetWidget):
 
     def __init__(self, colour, pos, text, handler=None, rectSize=None, icon=None):
         if rectSize == None:
-            image = pygame.image.load("assets/reset_small_cyan.png").convert_alpha()
+            image = pygame.image.load("assets/reset_small_cyantest.png").convert_alpha()
             size = (image.get_rect().width, image.get_rect().height)
         else:
             size = rectSize
@@ -156,8 +155,7 @@ class ResetButton(ResetWidget):
             self.beep.play()
             self.image = image2.convert_alpha()
 
-        
-        image = pygame.image.load("assets/reset_small_cyan.png")
+        image = pygame.image.load("assets/reset_small_cyantest.png")
         if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
             self.image = image.convert_alpha()
            
@@ -225,3 +223,104 @@ class ClusterButton(LcarsButton):
     def __init__(self, colour, pos, text, group_number, handler=None, rectSize=None, icon=None):
         self.group_number=group_number
         LcarsButton.__init__(self, colour, pos, text, handler)
+
+class UltimateButton(LcarsWidget):
+    """
+    
+        THE ULTIMATE BUTTON DOES EVERYTHING YOU NEED
+        make it simple or fancy, your choice :D
+        
+        Button will be generated depending on arguments supplied
+        -- no colours/images = default colours square button
+        -- colours only = custom colours square button
+        -- images only = custom image button
+        -- 1 image no colours = default colours shape button
+        -- 1 image + colors = custom colours shape button
+        
+        colour_ set should be formatted [colour, colour_highlighted, colour_pressed]
+        image_set should be formatted [image, image_highlighted, image_pressed] OR [image] (array of length 1)
+        
+        tested working:
+        -- no colours/images
+        -- colours only
+        -- 1 image no colours
+        -- 1 image + colours
+        -- buttons with text
+        
+        theoretically working but untested:
+        -- 3 images (image set)
+        
+    """
+    
+    #DEFAULTS
+    colour=colours.WHITE
+    colour_highlighted=colours.GREY_BLUE
+    colour_pressed=colours.BLUE
+    image_normal=None
+    image_highlighted=None
+    image_pressed=None
+    size=(80, 40)
+    text=""
+    text_colour=colours.BLACK    
+    
+    def __init__(self, pos, size=None, text=None, colour_set=None, image_set=None, text_colour=None, font=None, handler=None):        
+        
+        #If colour or image sets are supplied, update defaults
+        if not colour_set == None:
+            self.colour=colour_set[0]
+            self.colour_highlighted=colour_set[1]
+            self.colour_pressed=colour_set[2]
+            if not size == None:
+                self.size = size
+        if not image_set == None:
+            image=image_set[0].convert_alpha()
+            if len(image_set) > 1:
+                self.image_highlighted=image_set[1].convert_alpha()
+                self.image_pressed=image_set[2].convert_alpha()
+            self.size = (image.get_rect().width, image.get_rect().height)
+        if not text_colour == None:
+            self.text_colour = text_colour
+        
+        #Create surface for non-image button
+        if image_set == None:
+            image = pygame.Surface(self.size)
+            image.fill(self.colour)
+            
+        self.image = image
+        #Create text image
+        if not text==None:
+            if font == None:
+                self.font = Font("assets/swiss911.ttf", 18)
+            else:
+                self.font = font
+            textImage = self.font.render(text, False, self.text_colour)
+            #textrect = textImage.get_rect()
+            image = image.blit(textImage, 
+                        (image.get_rect().width - textImage.get_rect().width - 10,
+                            image.get_rect().height - textImage.get_rect().height - 5))
+        
+        #Make widget 
+        LcarsWidget.__init__(self, self.colour, pos, self.size, handler)
+        self.applyColour(self.colour)
+        self.highlighted = False
+        self.beep = Sound("assets/audio/panel/202.wav")   
+    
+    def handleEvent(self, event, clock):
+        if (event.type == MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos) and self.visible == True):
+            if self.image_pressed == None:
+                self.applyColour(self.colour_pressed)
+                self.highlighted = True
+                self.beep.play()
+            else:
+                self.image_normal=self.image
+                self.image = self.image_pressed
+        
+        #need to add mouseover highlight functionality here
+        
+        if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
+            if self.image_pressed == None:
+                self.applyColour(self.colour)
+            else:
+                self.image = self.image_normal
+           
+        return LcarsWidget.handleEvent(self, event, clock)
