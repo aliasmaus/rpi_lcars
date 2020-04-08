@@ -31,6 +31,8 @@ class ScreenMain(LcarsScreen):
     cluster_node_reset_buttons=[]
     relay_controllers=[]
     cluster_buttons=[]
+    bank_number=1
+    visible_layer=4
     
     #power_icon=pygame.image.load("assets/power_small.png")
     #reset_icon=pygame.image.load("assets/reset_small.png").convert_alpha()
@@ -41,18 +43,20 @@ class ScreenMain(LcarsScreen):
         pins_df=pd.read_csv("data/buttons.csv")
         self.all_sprites=all_sprites
         
+        self.total_banks=pins_df['group'].max()
         #loop through each cluster
         for i in range(pins_df['group'].max()):
             #create a button for top menu
-            button = ClusterButton((self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "BANK "+ str(i+1), i+1, handler=self.clusterButtonHandler, image_set=[self.button_image, None, None])
-            all_sprites.add(button, layer=4)
-            self.cluster_buttons.append(button)
+            #button = ClusterButton((self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "BANK "+ str(i+1), i+1, handler=self.clusterButtonHandler, image_set=[self.button_image, None, None])
+            #all_sprites.add(button, layer=4)
+            #self.cluster_buttons.append(button)
             #create arrays for labels, power/reset buttons
             self.cluster_node_labels.append([])
             self.cluster_node_pwr_buttons.append([])
             self.cluster_node_reset_buttons.append([])
             
-        
+        all_sprites.add(ModernElbowTop(colours.TRANSPARENT, (77,15), "", handler=self.changeClusterUp), layer=1)
+        all_sprites.add(ModernElbowBottom(colours.TRANSPARENT, (400,15), "", handler=self.changeClusterDown), layer=1)
         #loop through each relay in the config file (data/buttons.csv) and spawn a relay controller for it
         for i in range(len(pins_df)):
             button=None
@@ -170,7 +174,28 @@ class ScreenMain(LcarsScreen):
             i.visible=True
         for i in self.cluster_node_reset_buttons[item.group_number-1]:
             i.visible=True
-            
+
+    def changeClusterUp(self, item, event, clock):
+        self.bank_number -= 1
+        if self.bank_number <= 0:
+            self.bank_number = self.total_banks
+        layer=self.visible_layer
+        print(str(layer) + " " + str(self.bank_number))
+        if layer == 4:
+            self.hideAllButtons()
+            self.showLayerFour(self.bank_number)
+
+    def changeClusterDown(self, item, event, clock):
+        self.bank_number += 1
+        if self.bank_number > self.total_banks:
+            self.bank_number = 1 
+        layer=self.visible_layer
+        print(str(layer) + " " + str(self.bank_number))
+        if layer == 4:
+            self.hideAllButtons()
+            self.showLayerFour(self.bank_number)
+        
+
     def hideAllButtons(self):
         for group in self.cluster_node_pwr_buttons:
             #print(group)
@@ -189,15 +214,19 @@ class ScreenMain(LcarsScreen):
             sprite.visible=False
         for sprite in self.all_sprites.get_sprites_from_layer(6):
             sprite.visible=False
-        for i in self.cluster_buttons:
-            i.visible=True
-        for i in self.cluster_node_labels[0]:
-            i.visible=True
-        for i in self.cluster_node_pwr_buttons[0]:
-            i.visible=True
-        for i in self.cluster_node_reset_buttons[0]:
-            i.visible=True
+        #for i in self.cluster_buttons:
+        #    i.visible=True
+        self.showLayerFour(self.bank_number)
         self.title_text.renderText("CLUSTER CONTROL")
+        self.visible_layer=4
+
+    def showLayerFour(self, bank):
+        for i in self.cluster_node_labels[bank-1]:
+            i.visible=True
+        for i in self.cluster_node_pwr_buttons[bank-1]:
+            i.visible=True
+        for i in self.cluster_node_reset_buttons[bank-1]:
+            i.visible=True
             
     def showStatusHandler(self, item, event, clock):
         for sprite in self.all_sprites.get_sprites_from_layer(4):
@@ -207,6 +236,7 @@ class ScreenMain(LcarsScreen):
         for sprite in self.all_sprites.get_sprites_from_layer(5):
             sprite.visible=True
         self.title_text.renderText("CLUSTER STATUS")
+        self.visible_layer=5
         
     def showSettingsHandler(self, item, event, clock):
         for sprite in self.all_sprites.get_sprites_from_layer(4):
@@ -216,3 +246,4 @@ class ScreenMain(LcarsScreen):
         for sprite in self.all_sprites.get_sprites_from_layer(6):
             sprite.visible=True
         self.title_text.renderText("APP SETTINGS")
+        self.visible_layer=6
