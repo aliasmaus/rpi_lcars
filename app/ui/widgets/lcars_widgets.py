@@ -122,111 +122,98 @@ class UltimateButton(LcarsWidget):
     """
     
         THE ULTIMATE BUTTON DOES EVERYTHING YOU NEED
-        make it simple or fancy, your choice :D
         
-        Button will be generated depending on arguments supplied
-        -- no colours/images = default colours square button
-        -- colours only = custom colours square button
-        -- images only = custom image button
-        -- 1 image no colours = default colours shape button
-        -- 1 image + colors = custom colours shape button
+        ARGUMENTS:
+        #Required
+            -position | (x coord, y coord)
+        #Optional
+            -size       | (width, height)                               default is (80, 40) or size of image_set[0]
+            -text       | "string"                                      default is None
+            -colour_set | [colour, colour_highlighted, colour_pressed]  default is [white, grey/blue, blue]
+            -image_set  | [image, image_highlighted, image_pressed]     default is [None, None, None]
+            -text_colour| (r, g, b) or from colours file                default is black
+            -font       | pygame.Font                                   default is MicroTech
+            -handler    | event handler function                        default is None
         
-        colour_ set should be formatted [colour, colour_highlighted, colour_pressed]
-        image_set should be formatted [image, image_highlighted, image_pressed] OR [image] (array of length 1)
-        
-        tested working:
-        -- no colours/images
-        -- colours only
-        -- 1 image no colours
-        -- 1 image + colours
-        -- buttons with text
-        
-        theoretically working but untested:
-        -- 3 images (image set)
+       BUGS:
+        -- 3 images (image set) - text disappears when clicking
         
     """
     
     #DEFAULTS
-    colour=colours.WHITE
-    colour_highlighted=colours.GREY_BLUE
-    colour_pressed=colours.BLUE
-    image_normal=None
-    image_highlighted=None
-    image_pressed=None
-    size=(80, 40)
-    text=""
-    text_colour=colours.BLACK
     imageonly=False    
-    
-    def __init__(self, pos, size=None, text=None, colour_set=None, image_set=None, text_colour=None, font=None, handler=None):        
+    #init
+    def __init__(self, pos, text=None, colour_set=[colours.WHITE, colours.GREY_BLUE, colours.BLUE], image_set=[None,None,None], text_colour=colours.BLACK, font=None, size=(80,40), handler=None):        
         
-        #If colour or image sets are supplied, update defaults
-        if not colour_set == None:
-            self.colour=colour_set[0]
-            self.colour_highlighted=colour_set[1]
-            self.colour_pressed=colour_set[2]
-            if not size == None:
-                self.size = size
-        if not image_set == None:
-            image=image_set[0].convert_alpha()
-            if len(image_set) > 1:
-                self.image_highlighted=image_set[1].convert_alpha()
-                self.image_pressed=image_set[2].convert_alpha()
+        #Set button attributes
+        #all buttons
+        self.colour=colour_set[0]
+        self.colour_highlighted=colour_set[1]
+        self.colour_pressed=colour_set[2]
+        self.size = size
+        print(self.size)
+        self.text_colour = text_colour
+        #image buttons only
+        if not image_set[0] == None:
+            self.image_normal=image_set[0].convert_alpha()
+            image=self.image_normal
+            self.image=image
             self.size = (image.get_rect().width, image.get_rect().height)
-        if not text_colour == None:
-            self.text_colour = text_colour
-        
+        if not image_set[1] == None:
+            self.image_highlighted=image_set[1].convert_alpha()
+        if not image_set[2] == None:
+            self.image_pressed=image_set[2].convert_alpha()
+            self.imageonly=True
         #Create surface for non-image button
-        if image_set == None:
-            image = pygame.Surface(self.size)
-            image.fill(self.colour)
+        if not self.imageonly:
+            if image_set[0]==None:
+                image = pygame.Surface(self.size)
+                image.fill(self.colour)
+                self.image=image
+            #apply colour to white button
+            else:
+                self.image=image
+                self.applyColour(self.colour)
             
-        self.image = image
-        #Create text image
+        
+
+        #Create text image if text included
         if not text==None:
             if font == None:
-                self.font = Font("assets/MicroTech.ttf", 18)
+                self.font=Font("assets/MicroTech.ttf", 18)
             else:
                 self.font = font
             textImage = self.font.render(text, False, self.text_colour)
-            #textrect = textImage.get_rect()
+            textrect = textImage.get_rect()
             image = image.blit(textImage, 
                         (image.get_rect().width - textImage.get_rect().width - 10,
                             image.get_rect().height - textImage.get_rect().height - 5))
-            #if not self.image_pressed==None:
-             #   self.image_pressed = self.image_pressed.blit(textImage, 
-              #              (image.get_rect().width - textImage.get_rect().width - 10,
-               #                 image.get_rect().height - textImage.get_rect().height - 5))
-        #
+        
         #Make widget 
         LcarsWidget.__init__(self, self.colour, pos, self.size, handler)
-        if image_set == None:
-            self.applyColour(self.colour)
-        elif len(image_set) == 1 and not colour_set==None:
+        if image_set[2] == None:
             self.applyColour(self.colour)
         else:
             self.imageonly=True
         self.highlighted = False
         self.beep = Sound("assets/audio/panel/202.wav")   
-    
+    #handle events
     def handleEvent(self, event, clock):
         if (event.type == MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos) and self.visible == True):
-            if self.image_pressed == None and self.imageonly==False:
-                self.applyColour(self.colour_pressed)
-                self.highlighted = True
-                self.beep.play()
+            if self.imageonly:
+                self.image = self.image_pressed
             else:
-                self.image_normal=self.image
-                if not self.image_pressed==None:
-                    self.image = self.image_pressed
+                self.applyColour(self.colour_pressed)
+            self.highlighted = True
+            self.beep.play()
         
         #need to add mouseover highlight functionality here
         
         if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
-            if self.image_pressed == None and self.imageonly==False:
-                self.applyColour(self.colour)
+            if self.imageonly:
+                self.image = self.image_normal                
             else:
-                self.image = self.image_normal
+                self.applyColour(self.colour)
            
         return LcarsWidget.handleEvent(self, event, clock)
 
@@ -568,11 +555,11 @@ class RelayResetButton(ResetButton):
         self.relay=relayController
         ResetButton.__init__(self, colour, pos, text, handler, icon=icon)
         
-class ClusterButton(ModernElbowTop):
-    
-    def __init__(self, colour, pos, text, group_number, handler=None, rectSize=None, icon=None):
+class ClusterButton(UltimateButton):
+    colour_set = [colours.WHITE, colours.GREY_BLUE, colours.BLUE]
+    def __init__(self, pos, text, group_number, handler=None, colour_set=colour_set, image_set=[None, None, None]):
         self.group_number=group_number
-        ModernElbowTop.__init__(self, colour, pos, text, handler)
+        UltimateButton.__init__(self, pos, text, colour_set=colour_set, image_set=image_set, handler=handler)
 
         
         

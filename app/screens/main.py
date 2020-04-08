@@ -23,6 +23,7 @@ class ScreenMain(LcarsScreen):
     content_ypos=200
     content_yinterval=60
     title_text=None
+    button_image=pygame.image.load("assets/button.png")
 
     #COMPONENT ARRAYS
     cluster_node_labels=[]
@@ -43,8 +44,7 @@ class ScreenMain(LcarsScreen):
         #loop through each cluster
         for i in range(pins_df['group'].max()):
             #create a button for top menu
-            button = ClusterButton(colours.WHITE, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "BANK "+ str(i+1), i+1, self.clusterButtonHandler)
-            #button = ModernElbowTop(colours.WHITE, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "BANK "+ str(i+1), i+1, self.clusterButtonHandler)
+            button = ClusterButton((self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "BANK "+ str(i+1), i+1, handler=self.clusterButtonHandler, image_set=[self.button_image, None, None])
             all_sprites.add(button, layer=4)
             self.cluster_buttons.append(button)
             #create arrays for labels, power/reset buttons
