@@ -8,7 +8,7 @@ from ui.widgets.background import LcarsBackgroundImage
 from ui.widgets.gifimage import LcarsGifImage
 from ui.widgets.lcars_widgets import LcarsText
 from ui.widgets.screen import LcarsScreen
-from ui.widgets.lcars_widgets import LcarsButton
+from ui.widgets.lcars_widgets import LcarsButton, UltimateButton
 
 class ScreenAuthorize(LcarsScreen):
 
@@ -20,7 +20,7 @@ class ScreenAuthorize(LcarsScreen):
                         layer=0)        
 
         all_sprites.add(LcarsText(colours.BLUEMID, (270, -1), "AUTHORIZATION REQUIRED", 2),
-                        layer=0)
+                        layer=1)
 
         all_sprites.add(LcarsText(colours.BLUEMID, (330, -1), "ONLY AUTHORIZED PERSONNEL MAY ACCESS THIS TERMINAL", 1.5),
                         layer=1)
@@ -29,16 +29,26 @@ class ScreenAuthorize(LcarsScreen):
                         layer=1)
         
         #all_sprites.add(LcarsText(colours.BLUE, (390, -1), "FAILED ATTEMPTS WILL BE REPORTED", 1.5),layer=1)
+        button_row_1 = 230
+        button_row_2 = 270
+        button_row_3 = 310
+        button_row_4 = 350
+        button_col_1 = 210
+        button_col_2 = 340
+        button_col_3 = 470
+        button_image = pygame.image.load("assets/button_modern.png")
+        button_image_down = pygame.image.load("assets/button_modern_down.png")
+        all_sprites.add(UltimateButton((button_row_1, button_col_1), text="1", handler=self.num_1, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_1, button_col_2), text="2", handler=self.num_2, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_1, button_col_3), text="3", handler=self.num_3, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_2, button_col_1), text="4", handler=self.num_4, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_2, button_col_2), text="5", handler=self.num_5, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_2, button_col_3), text="6", handler=self.num_6, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_3, button_col_1), text="7", handler=self.num_7, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_3, button_col_2), text="8", handler=self.num_8, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_3, button_col_3), text="9", handler=self.num_3, image_set=[button_image, button_image, button_image_down]), layer=2)
+        all_sprites.add(UltimateButton((button_row_4, button_col_2), text="0", handler=self.num_7, image_set=[button_image, button_image, button_image_down]), layer=2)
 
-
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 130), "1", self.num_1), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 130), "5", self.num_5), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 270), "2", self.num_2), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 270), "6", self.num_6), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 410), "3", self.num_3), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 410), "7", self.num_7), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (320, 550), "4", self.num_4), layer=2)
-        all_sprites.add(LcarsButton(colours.GREY_BLUE, (370, 550), "8", self.num_8), layer=2)
 
         if config.DEV_MODE:
             all_sprites.add(LcarsButton(colours.GREY_BLUE, (0, 770), "X", self.exitHandler, (30, 30)), layer=2)
