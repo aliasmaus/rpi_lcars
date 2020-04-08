@@ -17,9 +17,9 @@ class ScreenMain(LcarsScreen):
     label_xpos=160
     pwr_button_xpos=250
     reset_button_xpos=350
-    cluster_button_xpos=140
-    cluster_button_ypos=120
-    cluster_button_xinterval=140
+    cluster_button_xpos=15
+    cluster_button_ypos=77
+    cluster_button_xinterval=300
     content_ypos=200
     content_yinterval=60
     title_text=None
@@ -44,6 +44,7 @@ class ScreenMain(LcarsScreen):
         for i in range(pins_df['group'].max()):
             #create a button for top menu
             button = ClusterButton(colours.WHITE, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "BANK "+ str(i+1), i+1, self.clusterButtonHandler)
+            #button = ModernElbowTop(colours.WHITE, (self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "BANK "+ str(i+1), i+1, self.clusterButtonHandler)
             all_sprites.add(button, layer=4)
             self.cluster_buttons.append(button)
             #create arrays for labels, power/reset buttons
@@ -85,10 +86,12 @@ class ScreenMain(LcarsScreen):
         all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_1_modern.png"),
                         layer=0)
 
-        # Title and main navigation buttons
-        #all_sprites.add(LcarsText(colours.BLUELIGHT, (15, 44), "LCARS 105"),
-        #                layer=1)
-        self.title_text=LcarsText(colours.WHITE, (10, 135), "CLUSTER CONTROL", 2)                
+        # panel text
+        all_sprites.add(YukonText(colours.BLUEDARK, (117, 90), "UP"),
+                        layer=1)
+        all_sprites.add(YukonText(colours.BLUEDARK, (420, 65), "dOWN"),
+                        layer=1)
+        self.title_text=LcarsText(colours.WHITE, (10, 135), "CONTROL", 2)                
         all_sprites.add(self.title_text,
                         layer=1)
         all_sprites.add(LcarsBlockMedium(colours.TRANSPARENT, (145, 16), "CONTROL", self.showControlHandler),
