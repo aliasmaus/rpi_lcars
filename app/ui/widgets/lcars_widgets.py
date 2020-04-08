@@ -43,6 +43,81 @@ class ModernButton(LcarsWidget):
            
         return LcarsWidget.handleEvent(self, event, clock)
 
+class ModernElbowTop(GeneralWidget):
+    def __init__(self, colour, pos, text, handler=None, rectSize=None, icon=None):
+        if rectSize == None:
+            image = pygame.image.load("assets/elbow_top.png").convert_alpha()
+            size = (image.get_rect().width, image.get_rect().height)
+        else:
+            size = rectSize
+            image = pygame.Surface(rectSize).convert_alpha()
+            #image.fill(colours.TRANSPARENT)
+            #image=image.convert_alpha()
+
+        self.colour = colours.TRANSPARENT
+        self.image = image
+        self.font = Font("assets/YukonTech.ttf", 20)
+        textImage = self.font.render(text, False, colours.BLUEDARK)
+        image = image.blit(textImage, 
+                (image.get_rect().width - textImage.get_rect().width - 170,
+                    image.get_rect().height - textImage.get_rect().height - 5))
+    
+        GeneralWidget.__init__(self, colour, pos, size, handler)
+        self.highlighted = False
+        self.beep = Sound("assets/audio/panel/202.wav")
+
+
+
+    def handleEvent(self, event, clock):
+        image2 = pygame.image.load("assets/elbow_top_up.png")
+        if (event.type == MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos) and self.visible == True):
+            self.image = image2.convert_alpha()
+            self.highlighted = True
+            self.beep.play()
+        
+        if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
+            self.applyColour(self.colour)
+           
+        return GeneralWidget.handleEvent(self, event, clock)
+        
+class ModernElbowBottom(GeneralWidget):
+    def __init__(self, colour, pos, text, handler=None, rectSize=None, icon=None):
+        if rectSize == None:
+            image = pygame.image.load("assets/elbow_bottom_down.png").convert_alpha()
+            size = (image.get_rect().width, image.get_rect().height)
+        else:
+            size = rectSize
+            image = pygame.Surface(rectSize).convert_alpha()
+            #image.fill(colours.TRANSPARENT)
+            #image=image.convert_alpha()
+
+        self.colour = colours.TRANSPARENT
+        self.image = image
+        self.font = Font("assets/YukonTech.ttf", 20)
+        textImage = self.font.render(text, False, colours.BLUEDARK)
+        image = image.blit(textImage, 
+                (image.get_rect().width - textImage.get_rect().width - 170,
+                    image.get_rect().height - textImage.get_rect().height - 5))
+    
+        GeneralWidget.__init__(self, colour, pos, size, handler)
+        self.highlighted = False
+        self.beep = Sound("assets/audio/panel/202.wav")
+
+
+
+    def handleEvent(self, event, clock):
+        image2 = pygame.image.load("assets/elbow_bottom_down.png")
+        if (event.type == MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos) and self.visible == True):
+            self.image = image2.convert_alpha()
+            self.highlighted = True
+            self.beep.play()
+        
+        if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
+            self.applyColour(self.colour)
+           
+        return GeneralWidget.handleEvent(self, event, clock)
+
+
 class UltimateButton(LcarsWidget):
     """
     
@@ -194,6 +269,7 @@ class SideButton(GeneralWidget):
             self.applyColour(colours.WHITE)
             self.highlighted = True
             self.beep.play()
+            
         
         if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
             self.applyColour(self.colour)
@@ -245,8 +321,8 @@ class LcarsElbow(LcarsWidget):
     STYLE_BOTTOM_RIGHT = 2
     STYLE_TOP_RIGHT = 3
     
-    def __init__(self, colour, style, pos, handler=None):
-        image = pygame.image.load("assets/elbow.png").convert_alpha()
+    def __init__(self, colour, style, pos, text, group_number, handler):
+        image = pygame.image.load("assets/elbow_top.png").convert_alpha()
         # alpha=255
         # image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
         if (style == LcarsElbow.STYLE_BOTTOM_LEFT):
@@ -259,7 +335,19 @@ class LcarsElbow(LcarsWidget):
         self.image = image
         size = (image.get_rect().width, image.get_rect().height)
         LcarsWidget.__init__(self, colour, pos, size, handler)
-        self.applyColour(colour)
+        self.applyColour(colours.WHITE)
+        
+    def handleEvent(self, event, clock):
+        #image2 = pygame.image.load("assets/reset_small.png")
+        if (event.type == MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos) and self.visible == True):
+            self.applyColour(colours.WHITE)
+            self.highlighted = True
+            #self.beep.play()
+        
+        if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
+            self.applyColour(colours.TRANSPARENT)
+           
+        return GeneralWidget.handleEvent(self, event, clock)
 
 class LcarsTab(LcarsWidget):
     """Tab widget (like radio button) - not currently used nor implemented"""
@@ -416,6 +504,30 @@ class LcarsText(LcarsWidget):
     def setText(self, newText):
         self.renderText(newText)
 
+class YukonText(LcarsWidget):
+    """Text that can be placed anywhere"""
+
+    def __init__(self, colour, pos, message, size=1.0, background=None, handler=None):
+        self.colour = colour
+        self.background = background
+        self.font = Font("assets/YukonTech.ttf", int(20 * size))
+        
+        self.renderText(message)
+        # center the text if needed 
+        if (pos[1] < 0):
+            pos = (pos[0], 400 - self.image.get_rect().width / 2)
+            
+        LcarsWidget.__init__(self, colour, pos, None, handler)
+
+    def renderText(self, message):        
+        if (self.background == None):
+            self.image = self.font.render(message, True, self.colour)
+        else:
+            self.image = self.font.render(message, True, self.colour, self.background)
+        
+    def setText(self, newText):
+        self.renderText(newText)
+
 class LcarsBlockLarge(SideButton):
     """Left navigation block - large version"""
 
@@ -456,9 +568,11 @@ class RelayResetButton(ResetButton):
         self.relay=relayController
         ResetButton.__init__(self, colour, pos, text, handler, icon=icon)
         
-class ClusterButton(ModernButton):
+class ClusterButton(ModernElbowTop):
     
     def __init__(self, colour, pos, text, group_number, handler=None, rectSize=None, icon=None):
         self.group_number=group_number
-        ModernButton.__init__(self, colour, pos, text, handler)
+        ModernElbowTop.__init__(self, colour, pos, text, handler)
 
+        
+        
