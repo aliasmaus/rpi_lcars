@@ -17,9 +17,6 @@ class ScreenMain(LcarsScreen):
     label_xpos=160
     pwr_button_xpos=250
     reset_button_xpos=350
-    cluster_button_xpos=15
-    cluster_button_ypos=77
-    cluster_button_xinterval=300
     content_ypos=200
     content_yinterval=60
     title_text=None
@@ -33,9 +30,6 @@ class ScreenMain(LcarsScreen):
     cluster_buttons=[]
     bank_number=1
     visible_layer=4
-    
-    #power_icon=pygame.image.load("assets/power_small.png")
-    #reset_icon=pygame.image.load("assets/reset_small.png").convert_alpha()
 
     def setup(self, all_sprites):
         #relay setup
@@ -46,27 +40,25 @@ class ScreenMain(LcarsScreen):
         self.total_banks=pins_df['group'].max()
         #loop through each cluster
         for i in range(pins_df['group'].max()):
-            #create a button for top menu
-            #button = ClusterButton((self.cluster_button_ypos, self.cluster_button_xpos+(self.cluster_button_xinterval*i)), "BANK "+ str(i+1), i+1, handler=self.clusterButtonHandler, image_set=[self.button_image, None, None])
-            #all_sprites.add(button, layer=4)
-            #self.cluster_buttons.append(button)
             #create arrays for labels, power/reset buttons
             self.cluster_node_labels.append([])
             self.cluster_node_pwr_buttons.append([])
             self.cluster_node_reset_buttons.append([])
-            
+        
+        #Elbow up-down buttons
         all_sprites.add(ModernElbowTop(colours.TRANSPARENT, (77,15), "", handler=self.changeClusterUp), layer=1)
         all_sprites.add(ModernElbowBottom(colours.TRANSPARENT, (400,15), "", handler=self.changeClusterDown), layer=1)
-        #loop through each relay in the config file (data/buttons.csv) and spawn a relay controller for it
+
+        #loop through each relay in the config file (data/buttons.csv) and spawn a relay controller
         for i in range(len(pins_df)):
             button=None
             label=None
             #controller=RC(int(pins_df['gpio_pin'][i]))
             #self.relay_controllers.append(controller)
 
-        #create relevant button and add it to all_sprites and button array
-        #buttons not in group 1 hidden by default
-            #create labels with power buttons
+            #create relevant button and add it to all_sprites and button array
+            #buttons not in group 1 hidden by default
+            #labels are created at same time as power buttons
             if pins_df['type'][i]=='power':
                 name=pins_df['name'][i]
                 button=RelayPowerButton(colours.PURPLE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.pwr_button_xpos), "POWER", None, self.relayButtonHandler)
@@ -74,11 +66,13 @@ class ScreenMain(LcarsScreen):
                 label=LcarsText(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.label_xpos), name)
                 self.cluster_node_labels[pins_df['group'][i]-1].append(label)
                 all_sprites.add(label, layer=4)
+
             #create reset buttons
             else:
                 button=RelayResetButton(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", None, self.relayButtonHandler)
                 self.cluster_node_reset_buttons[int(pins_df['group'][i])-1].append(button)
             all_sprites.add(button, layer=4)
+
             #set buttons not in group to not be visible
             if not int(pins_df['group'][i])==1:
                 button.visible=False
@@ -93,9 +87,9 @@ class ScreenMain(LcarsScreen):
         # panel text
         all_sprites.add(YukonText(colours.BLUEDARK, (117, 90), "UP"),
                         layer=1)
-        all_sprites.add(YukonText(colours.BLUEDARK, (420, 65), "dOWN"),
+        all_sprites.add(YukonText(colours.BLUEDARK, (420, 65), "DOWN"),
                         layer=1)
-        self.title_text=LcarsText(colours.WHITE, (10, 135), "CONTROL", 2)                
+        self.title_text=LcarsText(colours.WHITE, (10, 135), "CLUSTER CONTROL", 2)                
         all_sprites.add(self.title_text,
                         layer=1)
         all_sprites.add(LcarsBlockMedium(colours.TRANSPARENT, (145, 16), "CONTROL", self.showControlHandler),
@@ -127,11 +121,6 @@ class ScreenMain(LcarsScreen):
             sprite.visible=False
         for sprite in all_sprites.get_sprites_from_layer(6):
             sprite.visible=False
-        
-        #testing the ultimate button
-        #pic1 = pygame.image.load("assets/button_modern.png")
-        #pic2 = pygame.image.load("assets/button_modern_down.png")
-        #all_sprites.add(UltimateButton((100,100), image_set=[pic1, pic1, pic2], text="hellocd "), layer=4)
 
     def update(self, screenSurface, fpsClock):
         if pygame.time.get_ticks() - self.lastClockUpdate > 1000:
@@ -145,7 +134,7 @@ class ScreenMain(LcarsScreen):
 
         if event.type == pygame.MOUSEBUTTONUP:
             return False
-    
+
     def hideInfoText(self):
         if self.info_text[0].visible:
             for sprite in self.info_text:
