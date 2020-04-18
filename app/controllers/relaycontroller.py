@@ -4,8 +4,8 @@ import time
 
 class relaycontroller():
     relay=None
-    def __init__(self, pin, remote=False, remotehost=None):
-        if not remote:
+    def __init__(self, pin, remotehost=None):
+        if remotehost==None:
             self.relay=OutputDevice(pin, active_high=False, initial_value=False)
         else:
             factory=PiGPIOFactory(host=remotehost)

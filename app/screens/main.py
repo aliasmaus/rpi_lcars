@@ -10,15 +10,15 @@ from controllers.relaycontroller import relaycontroller as RC
 from datasources.network import get_ip_address_string
 import pandas as pd
 import gpiozero
-#from RPi import GPIO
+from RPi import GPIO
 
 class ScreenMain(LcarsScreen):
     #DEFAULTS
-    label_xpos=160
-    pwr_button_xpos=250
-    reset_button_xpos=350
-    content_ypos=200
-    content_yinterval=60
+    label_xpos=150
+    pwr_button_xpos=730
+    reset_button_xpos=680
+    content_ypos=140
+    content_yinterval=70
     title_text=None
     button_image=pygame.image.load("assets/button.png")
 
@@ -53,23 +53,30 @@ class ScreenMain(LcarsScreen):
         for i in range(len(pins_df)):
             button=None
             label=None
-            #controller=RC(int(pins_df['gpio_pin'][i]))
-            #self.relay_controllers.append(controller)
+            print(str(pins_df['ip_address'][i]))
+            #local controllers
+            if not str(pins_df['ip_address'][i]).startswith("192"):
+                controller=RC(int(pins_df['gpio_pin'][i]))
+            #remote gpio
+            else:
+                controller=RC(int(pins_df['gpio_pin'][i]), remotehost=str(pins_df['ip_address'][i]))
+            
+            self.relay_controllers.append(controller)
 
             #create relevant button and add it to all_sprites and button array
             #buttons not in group 1 hidden by default
             #labels are created at same time as power buttons
             if pins_df['type'][i]=='power':
                 name=pins_df['name'][i]
-                button=RelayPowerButton(colours.PURPLE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.pwr_button_xpos), "POWER", None, self.relayButtonHandler)
+                button=RelayPowerButton(colours.PURPLE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.pwr_button_xpos), "POWER", controller, self.relayButtonHandler)
                 self.cluster_node_pwr_buttons[int(pins_df['group'][i])-1].append(button)
-                label=LcarsText(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.label_xpos), name)
+                label=DescText(colours.WHITE, ((self.content_ypos+5)+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.label_xpos), name)
                 self.cluster_node_labels[pins_df['group'][i]-1].append(label)
                 all_sprites.add(label, layer=4)
 
             #create reset buttons
             else:
-                button=RelayResetButton(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", None, self.relayButtonHandler)
+                button=RelayResetButton(colours.WHITE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.reset_button_xpos), "RESET", controller, self.relayButtonHandler)
                 self.cluster_node_reset_buttons[int(pins_df['group'][i])-1].append(button)
             all_sprites.add(button, layer=4)
 
@@ -85,10 +92,10 @@ class ScreenMain(LcarsScreen):
                         layer=0)
 
         # panel text
-        all_sprites.add(YukonText(colours.BLUEDARK, (117, 90), "UP"),
-                        layer=1)
-        all_sprites.add(YukonText(colours.BLUEDARK, (420, 65), "DOWN"),
-                        layer=1)
+        #all_sprites.add(YukonText(colours.BLUEDARK, (117, 90), "UP"),
+        #                layer=1)
+        #all_sprites.add(YukonText(colours.BLUEDARK, (420, 65), "dOWN"),
+        #                layer=1)
         self.title_text=LcarsText(colours.WHITE, (10, 135), "CLUSTER CONTROL", 2)                
         all_sprites.add(self.title_text,
                         layer=1)
@@ -102,6 +109,10 @@ class ScreenMain(LcarsScreen):
         self.ip_address = LcarsText(colours.BLUEDARK, (446, 505),
                                     ":: NODE | "+get_ip_address_string()+" ::", 1.13)
         all_sprites.add(self.ip_address, layer=1)
+        
+        self.bank_number_text = LcarsText(colours.BLUEDARK, (79, 331),
+                                    "BANK   "+str(self.bank_number), 1.1)
+        all_sprites.add(self.bank_number_text, layer=1)
 
         # date display
         self.stardate = LcarsText(colours.BLUEMID, (25, 470), "STAR DATE 2311.05 17:54:32", 1.5)
@@ -147,11 +158,11 @@ class ScreenMain(LcarsScreen):
     def logoutHandler(self, item, event, clock):
         from screens.authorize import ScreenAuthorize
         self.loadScreen(ScreenAuthorize())
-        #for controller in self.relay_controllers:
-        #    controller.relay.close()
+        for controller in self.relay_controllers:
+            controller.relay.close()
 
     def relayButtonHandler(self, item, event, clock):
-        #item.relay.dothething()
+        item.relay.dothething()
         pass
         
     def clusterButtonHandler(self, item, event, clock):
@@ -169,20 +180,20 @@ class ScreenMain(LcarsScreen):
         if self.bank_number <= 0:
             self.bank_number = self.total_banks
         layer=self.visible_layer
-        print(str(layer) + " " + str(self.bank_number))
         if layer == 4:
             self.hideAllButtons()
             self.showLayerFour(self.bank_number)
+        self.bank_number_text.renderText("BANK   "+str(self.bank_number))
 
     def changeClusterDown(self, item, event, clock):
         self.bank_number += 1
         if self.bank_number > self.total_banks:
             self.bank_number = 1 
         layer=self.visible_layer
-        print(str(layer) + " " + str(self.bank_number))
         if layer == 4:
             self.hideAllButtons()
             self.showLayerFour(self.bank_number)
+        self.bank_number_text.renderText("BANK   "+str(self.bank_number))
         
 
     def hideAllButtons(self):

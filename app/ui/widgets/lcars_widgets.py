@@ -60,7 +60,7 @@ class ModernElbowTop(GeneralWidget):
         textImage = self.font.render(text, False, colours.BLUEDARK)
         image = image.blit(textImage, 
                 (image.get_rect().width - textImage.get_rect().width - 170,
-                    image.get_rect().height - textImage.get_rect().height - 5))
+                    image.get_rect().height - textImage.get_rect().height - 10))
     
         GeneralWidget.__init__(self, colour, pos, size, handler)
         self.highlighted = False
@@ -83,7 +83,7 @@ class ModernElbowTop(GeneralWidget):
 class ModernElbowBottom(GeneralWidget):
     def __init__(self, colour, pos, text, handler=None, rectSize=None, icon=None):
         if rectSize == None:
-            image = pygame.image.load("assets/elbow_bottom_down.png").convert_alpha()
+            image = pygame.image.load("assets/elbow_bottom.png").convert_alpha()
             size = (image.get_rect().width, image.get_rect().height)
         else:
             size = rectSize
@@ -96,9 +96,9 @@ class ModernElbowBottom(GeneralWidget):
         self.font = Font("assets/YukonTech.ttf", 20)
         textImage = self.font.render(text, False, colours.BLUEDARK)
         image = image.blit(textImage, 
-                (image.get_rect().width - textImage.get_rect().width - 170,
-                    image.get_rect().height - textImage.get_rect().height - 5))
-    
+                (image.get_rect().width - textImage.get_rect().width - 185,
+                    image.get_rect().height - textImage.get_rect().height - 30))
+        #self.image1 = image
         GeneralWidget.__init__(self, colour, pos, size, handler)
         self.highlighted = False
         self.beep = Sound("assets/audio/panel/202.wav")
@@ -113,6 +113,7 @@ class ModernElbowBottom(GeneralWidget):
             self.beep.play()
         
         if (event.type == MOUSEBUTTONUP and self.highlighted and self.visible == True):
+            #self.image = self.image1
             self.applyColour(self.colour)
            
         return GeneralWidget.handleEvent(self, event, clock)
@@ -124,9 +125,9 @@ class UltimateButton(LcarsWidget):
         THE ULTIMATE BUTTON DOES EVERYTHING YOU NEED
         
         ARGUMENTS:
-        #Required
+        *Required
             -position | (x coord, y coord)
-        #Optional
+        *Optional
             -size       | (width, height)                               default is (80, 40) or size of image_set[0]
             -text       | "string"                                      default is None
             -colour_set | [colour, colour_highlighted, colour_pressed]  default is [white, grey/blue, blue]
@@ -151,7 +152,6 @@ class UltimateButton(LcarsWidget):
         self.colour_highlighted=colour_set[1]
         self.colour_pressed=colour_set[2]
         self.size = size
-        print(self.size)
         self.text_colour = text_colour
         #image buttons only
         if not image_set[0] == None:
@@ -186,8 +186,8 @@ class UltimateButton(LcarsWidget):
             textImage = self.font.render(text, False, self.text_colour)
             textrect = textImage.get_rect()
             image = image.blit(textImage, 
-                        (image.get_rect().width - textImage.get_rect().width - 10,
-                            image.get_rect().height - textImage.get_rect().height - 5))
+                        (image.get_rect().width - textImage.get_rect().width - 52,
+                            image.get_rect().height - textImage.get_rect().height - 10))
         
         #Make widget 
         LcarsWidget.__init__(self, self.colour, pos, self.size, handler)
@@ -491,6 +491,30 @@ class LcarsText(LcarsWidget):
     def setText(self, newText):
         self.renderText(newText)
 
+class DescText(LcarsWidget):
+    """Text that can be placed anywhere"""
+
+    def __init__(self, colour, pos, message, size=1.6, background=None, handler=None):
+        self.colour = colour
+        self.background = background
+        self.font = Font("assets/Doboto.ttf", int(15 * size))
+        
+        self.renderText(message)
+        # center the text if needed 
+        if (pos[1] < 0):
+            pos = (pos[0], 400 - self.image.get_rect().width / 2)
+            
+        LcarsWidget.__init__(self, colour, pos, None, handler)
+
+    def renderText(self, message):        
+        if (self.background == None):
+            self.image = self.font.render(message, True, self.colour)
+        else:
+            self.image = self.font.render(message, True, self.colour, self.background)
+        
+    def setText(self, newText):
+        self.renderText(newText)
+
 class YukonText(LcarsWidget):
     """Text that can be placed anywhere"""
 
@@ -504,7 +528,7 @@ class YukonText(LcarsWidget):
         if (pos[1] < 0):
             pos = (pos[0], 400 - self.image.get_rect().width / 2)
             
-        LcarsWidget.__init__(self, colour, pos, None, handler)
+        GeneralWidget.__init__(self, colour, pos, None, handler)
 
     def renderText(self, message):        
         if (self.background == None):

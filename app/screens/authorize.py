@@ -36,8 +36,8 @@ class ScreenAuthorize(LcarsScreen):
         button_col_1 = 210
         button_col_2 = 340
         button_col_3 = 470
-        button_image = pygame.image.load("assets/button_modern.png")
-        button_image_down = pygame.image.load("assets/button_modern_down.png")
+        button_image = pygame.image.load("assets/buttonpad.png")
+        button_image_down = pygame.image.load("assets/buttonpaddown.png")
         all_sprites.add(UltimateButton((button_row_1, button_col_1), text="1", handler=self.num_1, image_set=[button_image, button_image, button_image_down]), layer=2)
         all_sprites.add(UltimateButton((button_row_1, button_col_2), text="2", handler=self.num_2, image_set=[button_image, button_image, button_image_down]), layer=2)
         all_sprites.add(UltimateButton((button_row_1, button_col_3), text="3", handler=self.num_3, image_set=[button_image, button_image, button_image_down]), layer=2)
