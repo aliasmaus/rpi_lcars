@@ -1,21 +1,21 @@
-index,gpio_pin,group,computer_number,type,name,ip_address
-0,14,1,1,power,:: i7 4700MQ  3.4GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
-1,15,1,2,power,:: i7 4700MQ  3.4GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
-2,18,1,3,power,:: i7 4710MQ  3.5GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
-3,24,1,4,power,:: i7 4710MQ  3.5GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
-4,8,1,1,reset,,192.168.1.12
-5,6,1,2,reset,,192.168.1.12
-6,5,1,3,reset,,192.168.1.12
-7,0,1,4,reset,,192.168.1.12
-8,2,2,1,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12
-9,3,2,2,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12
-10,4,2,3,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12
-11,17,2,4,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12
-12,27,2,1,reset,,192.168.1.12
-13,22,2,2,reset,,192.168.1.12
-14,10,2,3,reset,,192.168.1.12
-15,9,2,4,reset,,192.168.1.12
-16,2,3,1,power,:: Cortex-A72  2.0GHz  4-Core  4GB RAM  1x 256GB SD ::,
-17,3,3,2,power,:: Cortex-A72  2.0GHz  4-Core  4GB RAM  1x 256GB SD ::,
-18,4,3,3,power,:: Cortex-A72  2.0GHz  4-Core  4GB RAM  1x 256GB SD ::,
-19,14,3,4,power,:: Cortex-A72  2.0GHz  4-Core  4GB RAM  1x 256GB SD ::,
+index,gpio_pin,group,computer_number,type,name,ip_address,node_ip_suffix
+0,14,1,1,power,:: i7 4700MQ  3.4GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12,200
+1,15,1,2,power,:: i7 4700MQ  3.4GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12,201
+2,18,1,3,power,:: i7 4710MQ  3.5GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12,202
+3,24,1,4,power,:: i7 4710MQ  3.5GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12,203
+4,8,1,1,reset,,192.168.1.12,
+5,13,1,2,reset,,192.168.1.12,
+6,6,1,3,reset,,192.168.1.12,
+7,5,1,4,reset,,192.168.1.12,
+8,2,2,1,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12,204
+9,3,2,2,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12,205
+10,4,2,3,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12,206
+11,17,2,4,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12,207
+12,27,2,1,reset,,192.168.1.12,
+13,22,2,2,reset,,192.168.1.12,
+14,10,2,3,reset,,192.168.1.12,
+15,9,2,4,reset,,192.168.1.12,
+16,2,3,1,power,:: Cortex-A72  2.0GHz  4-Core  4GB RAM  1x 256GB SD ::,,208
+17,3,3,2,power,:: Cortex-A72  2.0GHz  4-Core  4GB RAM  1x 256GB SD ::,,209
+18,4,3,3,power,:: Cortex-A72  2.0GHz  4-Core  4GB RAM  1x 256GB SD ::,,210
+19,14,3,4,power,:: Cortex-A72  2.0GHz  4-Core  4GB RAM  1x 256GB SD ::,,211
