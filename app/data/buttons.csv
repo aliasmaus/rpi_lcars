@@ -1,12 +1,12 @@
 index,gpio_pin,group,computer_number,type,name,ip_address
 0,14,1,1,power,:: i7 4700MQ  3.4GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
 1,15,1,2,power,:: i7 4700MQ  3.4GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
-2,18,1,3,power,:: i7 4710MQ  3.5GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
-3,24,1,4,power,:: i7 4710MQ  3.5GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
+2,23,1,3,power,:: i7 4710MQ  3.5GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
+3,25,1,4,power,:: i7 4710MQ  3.5GHz  4/8-Core  16GB-RAM  3x-500GB HDD ::,192.168.1.12
 4,8,1,1,reset,,192.168.1.12
-5,6,1,2,reset,,192.168.1.12
-6,5,1,3,reset,,192.168.1.12
-7,0,1,4,reset,,192.168.1.12
+5,13,1,2,reset,,192.168.1.12
+6,6,1,3,reset,,192.168.1.12
+7,5,1,4,reset,,192.168.1.12
 8,2,2,1,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12
 9,3,2,2,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12
 10,4,2,3,power,:: i7 4800MQ  3.7GHz  4/8-Core  16GB-RAM  3x-240GB SSD ::,192.168.1.12

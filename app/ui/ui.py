@@ -10,13 +10,14 @@ class UserInterface:
                  audio_params=(22050, -8, 1, 1024)):
         # init system
         pygame.display.init()
+        pygame.display.set_mode((800,480),pygame.FULLSCREEN)
         pygame.font.init()
         sound.init(audio_params)
 
-        self.screenSurface = pygame.display.set_mode(resolution) #, pygame.FULLSCREEN)
+        self.screenSurface = pygame.display.set_mode(resolution,pygame.FULLSCREEN)#, pygame.FULLSCREEN)
         self.fpsClock = pygame.time.Clock()
         self.fps = fps
-        pygame.display.set_caption("LCARS")
+        #pygame.display.set_caption("LCARS")
         if not dev_mode: 
             # see https://github.com/tobykurien/rpi_lcars/issues/9
             #pygame.mouse.set_visible(False)

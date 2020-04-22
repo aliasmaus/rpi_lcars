@@ -11,8 +11,9 @@ from ui.widgets.screen import LcarsScreen
 from ui.widgets.lcars_widgets import LcarsButton, UltimateButton
 
 class ScreenAuthorize(LcarsScreen):
-
+        
     def setup(self, all_sprites):
+        #self.mainscreen=mainscr
         all_sprites.add(LcarsBackgroundImage("assets/lcars_screen_2_modern.png"),
                         layer=0)
 
@@ -94,7 +95,7 @@ class ScreenAuthorize(LcarsScreen):
                 if (self.correct == len(str(self.pin))):
                     self.sound_granted.play()
                     from screens.main import ScreenMain
-                    self.loadScreen(ScreenMain())
+                    self.loadScreen(self.params.pop())
                 else:
                     self.sound_deny2.play()
                     self.sound_denied.play()

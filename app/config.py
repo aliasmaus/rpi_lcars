@@ -1,7 +1,7 @@
 # global config
-UI_PLACEMENT_MODE = True
+UI_PLACEMENT_MODE = False
 RESOLUTION = (800, 480)
 #RESOLUTION = (1366, 768)
 FPS = 60
-DEV_MODE = True
+DEV_MODE = False
 SOUND = True

@@ -30,6 +30,24 @@ class ScreenMain(LcarsScreen):
     cluster_buttons=[]
     bank_number=1
     visible_layer=4
+    
+    nextScreen=None
+    
+    def __init__(self):
+        pins_df=pd.read_csv("data/buttons.csv")
+        #loop through each relay in the config file (data/buttons.csv) and spawn a relay controller
+        for i in range(len(pins_df)):
+            button=None
+            label=None
+            print(str(pins_df['ip_address'][i]))
+            #local controllers
+            if not str(pins_df['ip_address'][i]).startswith("192"):
+                controller=RC(int(pins_df['gpio_pin'][i]))
+            #remote gpio
+            else:
+                controller=RC(int(pins_df['gpio_pin'][i]), remotehost=str(pins_df['ip_address'][i]))
+            
+            self.relay_controllers.append(controller)
 
     def setup(self, all_sprites):
         #relay setup
@@ -49,19 +67,10 @@ class ScreenMain(LcarsScreen):
         all_sprites.add(ModernElbowTop(colours.TRANSPARENT, (77,15), "", handler=self.changeClusterUp), layer=1)
         all_sprites.add(ModernElbowBottom(colours.TRANSPARENT, (400,15), "", handler=self.changeClusterDown), layer=1)
 
-        #loop through each relay in the config file (data/buttons.csv) and spawn a relay controller
         for i in range(len(pins_df)):
             button=None
             label=None
-            print(str(pins_df['ip_address'][i]))
-            #local controllers
-            if not str(pins_df['ip_address'][i]).startswith("192"):
-                controller=RC(int(pins_df['gpio_pin'][i]))
-            #remote gpio
-            else:
-                controller=RC(int(pins_df['gpio_pin'][i]), remotehost=str(pins_df['ip_address'][i]))
-            
-            self.relay_controllers.append(controller)
+            controller=self.relay_controllers[i]
 
             #create relevant button and add it to all_sprites and button array
             #buttons not in group 1 hidden by default
@@ -157,9 +166,9 @@ class ScreenMain(LcarsScreen):
         
     def logoutHandler(self, item, event, clock):
         from screens.authorize import ScreenAuthorize
-        self.loadScreen(ScreenAuthorize())
-        for controller in self.relay_controllers:
-            controller.relay.close()
+        self.loadScreen(ScreenAuthorize(), params={self})
+        #for controller in self.relay_controllers:
+        #    controller.relay.close()
 
     def relayButtonHandler(self, item, event, clock):
         item.relay.dothething()
