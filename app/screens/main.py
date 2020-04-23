@@ -6,11 +6,11 @@ from ui.widgets.lcars_widgets import *
 from ui.widgets.screen import LcarsScreen
 
 from controllers.relaycontroller import relaycontroller as RC
+from components.clusternode import ClusterNode as CN
 
 from datasources.network import get_ip_address_string
 import pandas as pd
 import gpiozero
-from RPi import GPIO
 
 class ScreenMain(LcarsScreen):
     #DEFAULTS
@@ -23,6 +23,8 @@ class ScreenMain(LcarsScreen):
     button_image=pygame.image.load("assets/button.png")
 
     #COMPONENT ARRAYS
+    nodes=[]
+    status_labels=[]
     cluster_node_labels=[]
     cluster_node_pwr_buttons=[]
     cluster_node_reset_buttons=[]
@@ -62,6 +64,7 @@ class ScreenMain(LcarsScreen):
             self.cluster_node_labels.append([])
             self.cluster_node_pwr_buttons.append([])
             self.cluster_node_reset_buttons.append([])
+            self.status_labels.append([])
         
         #Elbow up-down buttons
         all_sprites.add(ModernElbowTop(colours.TRANSPARENT, (77,15), "", handler=self.changeClusterUp), layer=1)
@@ -80,8 +83,12 @@ class ScreenMain(LcarsScreen):
                 button=RelayPowerButton(colours.PURPLE, (self.content_ypos+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.pwr_button_xpos), "POWER", controller, self.relayButtonHandler)
                 self.cluster_node_pwr_buttons[int(pins_df['group'][i])-1].append(button)
                 label=DescText(colours.WHITE, ((self.content_ypos+5)+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)), self.label_xpos), name)
+                statuslabel=DescText(colours.RED, (self.content_ypos+5)+(self.content_yinterval*(int(pins_df['computer_number'][i])-1)+20, self.label_xpos), "OFFLINE")
                 self.cluster_node_labels[pins_df['group'][i]-1].append(label)
+                self.status_labels[pins_df['group'][i]-1].append(statuslabel)
                 all_sprites.add(label, layer=4)
+                all_sprites.add(statuslabel, layer=4)
+                nodes.append(CN('192.168.1.'+pins_df['node_ip_suffix'], statuslabel=statuslabel))
 
             #create reset buttons
             else:
@@ -242,6 +249,7 @@ class ScreenMain(LcarsScreen):
             sprite.visible=False
         for sprite in self.all_sprites.get_sprites_from_layer(6):
             sprite.visible=False
+        #will need updating when features added
         for sprite in self.all_sprites.get_sprites_from_layer(5):
             sprite.visible=True
         self.title_text.renderText("CLUSTER STATUS")
@@ -252,6 +260,7 @@ class ScreenMain(LcarsScreen):
             sprite.visible=False
         for sprite in self.all_sprites.get_sprites_from_layer(5):
             sprite.visible=False
+        #will need updating when features added
         for sprite in self.all_sprites.get_sprites_from_layer(6):
             sprite.visible=True
         self.title_text.renderText("APP SETTINGS")
