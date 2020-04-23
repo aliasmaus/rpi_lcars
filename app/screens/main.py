@@ -50,6 +50,8 @@ class ScreenMain(LcarsScreen):
                 controller=RC(int(pins_df['gpio_pin'][i]), remotehost=str(pins_df['ip_address'][i]))
             
             self.relay_controllers.append(controller)
+            if pins_df['type'][i]=='power':
+                self.nodes.append(CN('192.168.1.'+pins_df['node_ip_suffix'][i]))
 
     def setup(self, all_sprites):
         #relay setup
@@ -88,7 +90,8 @@ class ScreenMain(LcarsScreen):
                 self.status_labels[pins_df['group'][i]-1].append(statuslabel)
                 all_sprites.add(label, layer=4)
                 all_sprites.add(statuslabel, layer=4)
-                nodes.append(CN('192.168.1.'+pins_df['node_ip_suffix'], statuslabel=statuslabel))
+                print(nodes[i-((pins_df['group'][i]-1)*4)].ip_address)
+                #nodes[i-((pins_df['group'][i]-1)*4)].statuslabel=statuslabel
 
             #create reset buttons
             else:
@@ -99,6 +102,7 @@ class ScreenMain(LcarsScreen):
             #set buttons not in group to not be visible
             if not int(pins_df['group'][i])==1:
                 button.visible=False
+                statuslabel.Visible=False
                 if not label==None:
                     label.visible=False
         
@@ -242,6 +246,8 @@ class ScreenMain(LcarsScreen):
         for i in self.cluster_node_pwr_buttons[bank-1]:
             i.visible=True
         for i in self.cluster_node_reset_buttons[bank-1]:
+            i.visible=True
+        for i in self.status_labels[bank-1]:
             i.visible=True
             
     def showStatusHandler(self, item, event, clock):
